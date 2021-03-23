@@ -11,6 +11,35 @@ class safe_string:
     def __lt__(self, other):
         return self.string.__lt__(other.string)
 
+    def __eq__(self, other):
+        return self.string.__eq__(other.string)
+
+    def __ge__(self, other):
+        return self.string.__ge__(other.string)
+
+    def __contains__(self, subs):
+        return self.string.__contains__(subs.string)
+
+    def title(self):
+        return safe_string(
+            self.string.title(), 
+            trusted=self.trusted )
+        
+    def isascii(self):
+        return self.string.isascii()
+
+    def istitle(self):
+        return self.string.istitle()
+    
+    def isdigit(self):
+        return self.string.isdigit()
+
+    def isalnum(self):
+        return self.string.isalnum()
+
+    def index(self, subs):
+        return self.string.index(subs.string)
+
     def __getitem__(self, key):
         if isinstance(key, int):
             return safe_string(self.string[key], trusted=[self.trusted[key]])
@@ -73,6 +102,16 @@ if __name__ == "__main__":
     print()
     print()
 
+    def test3(haystack, *args, **kwargs):
+        s = safe_string(haystack, trusted=[True for _ in haystack])
+        titled = s.title()
+        print(titled.string)
+        # print("".join(str(int(trust)) for trust in replaced.trusted))
+    def test4(haystack, needle):
+        h = safe_string(haystack, trusted=[True for _ in haystack])
+        n = safe_string(needle, trusted=[True for _ in needle])
+        print(h.index(n))
+    
     def test2(haystack, *args, **kwargs):
         s = safe_string(haystack, trusted=[True for _ in haystack])
         replaced = s.replace(safe_string("bar"), safe_string("ABCDEF", 
@@ -87,3 +126,5 @@ if __name__ == "__main__":
     test2("foobarblahbar", count=1)
     test2("foobarblahbar", count=5)
     test2("fooblah", count=5)
+    test3("fooblah", count=5)
+    test4("needle in a haystack", "needle")
