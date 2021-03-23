@@ -40,6 +40,55 @@ class safe_string:
     def index(self, subs):
         return self.string.index(subs.string)
 
+    def expandtabs(self, tabsize = 8):
+        string = ""
+        trusted = []
+        for i in range(len(self.string)):
+            if self.string[i] == '\t':
+                string += " " * tabsize
+                trusted += [self.trusted[i]] * tabsize
+            else:
+                string += self.string[i]
+                trusted += [trusted[i]] 
+        return safe_string(
+            string, 
+            trusted=trusted )
+
+    def lstrip(self, chars=' '):
+        string = self.string.lstrip(chars=chars)
+        return safe_string(
+            string, 
+            trusted=self.trusted[-len(string):])
+
+    def rjust(self, width, fillchar=' '):
+        string = self.string.rjust(width, fillchar)
+        trusted = self.trusted if ((len(string)-len(self.string)) <= 0) else [False]*(len(string)-len(self.string)) + self.trusted
+        return safe_string(
+            string, 
+            trusted=trusted)
+
+    def zfill(self, width):
+        string = self.string.zfill(width)
+        trusted = self.trusted if ((len(string)-len(self.string)) <= 0) else [False]*(len(string)-len(self.string)) + self.trusted
+        return safe_string(
+            string, 
+            trusted=trusted)
+
+    def splitlines(self, keepends=False):
+        safe_string_list = []
+        start = 0
+        for i in range(len(self.string)):
+            if self.string[i] == '\n':
+                safe_string_list += [self[start:i+1]] if keepends else [self[start:i]]
+                start = i+1
+                
+        safe_string_list += [self[start:]]
+        return safe_string_list
+
+    def endswith(self, suffix, start=0, end=math.inf):
+        end = min(end, len(suffix))
+        return self.string.endswith(suffix, start, end)
+
     def __getitem__(self, key):
         if isinstance(key, int):
             return safe_string(self.string[key], trusted=[self.trusted[key]])
@@ -112,6 +161,11 @@ if __name__ == "__main__":
         n = safe_string(needle, trusted=[True for _ in needle])
         print(h.index(n))
     
+    def test5(haystack, width, c):
+        h = safe_string(haystack, trusted=[True for _ in haystack])
+        print(h.rjust(width).trusted)
+        print(h.rjust(width,c).string)
+
     def test2(haystack, *args, **kwargs):
         s = safe_string(haystack, trusted=[True for _ in haystack])
         replaced = s.replace(safe_string("bar"), safe_string("ABCDEF", 
@@ -119,6 +173,12 @@ if __name__ == "__main__":
         ), *args, **kwargs)
         print(replaced.string)
         print("".join(str(int(trust)) for trust in replaced.trusted))
+    
+    def test6(haystack):
+        s = safe_string(haystack, trusted=[True for _ in haystack])
+        lines = s.splitlines(True)
+        [print(l.string) for l in lines]
+ 
 
     test2("foobarblahbarbaz")
     test2("foobarblahbarbaz", count=1)
@@ -128,3 +188,5 @@ if __name__ == "__main__":
     test2("fooblah", count=5)
     test3("fooblah", count=5)
     test4("needle in a haystack", "needle")
+    test5("needle", 10, 'a')
+    test6("happy\nbirth\nday")
