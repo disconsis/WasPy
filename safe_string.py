@@ -70,8 +70,13 @@ class safe_string:
             trusted=self.trusted[-len(string):])
 
     def rjust(self, width, fillchar=' '):
-        string = self.string.rjust(width, fillchar)
-        trusted = self.trusted if ((len(string)-len(self.string)) <= 0) else [False]*(len(string)-len(self.string)) + self.trusted
+        if isinstance(fillchar, safe_string):
+            char_trust = fillchar.trusted[0]
+            string = self.string.rjust(width, fillchar.string)
+        else:
+            char_trust = False
+            string = self.string.rjust(width, fillchar)
+        trusted = self.trusted if ((len(string)-len(self.string)) <= 0) else [char_trust]*(len(string)-len(self.string)) + self.trusted
         return safe_string(
             string, 
             trusted=trusted)
@@ -141,33 +146,51 @@ class safe_string:
 
         return final
 
-    def split(self, sep, maxsplit=math.inf):
+    def split(self, sep=None, maxsplit=math.inf):
         str_splits = self.string.split(sep, min(maxsplit, len(self.string)))
         start_idx = 0
         list_splits = []
         for ele in str_splits:
+            while sep == None and self.string[start_idx:start_idx+len(ele)] != ele:
+                start_idx += 1
             new_ele = safe_string(ele, trusted=self.trusted[start_idx:start_idx+len(ele)])
             list_splits.append(new_ele)
-            start_idx += len(ele)+1
+            start_idx += len(ele)
+            if sep != None and len(sep) > 0:
+                start_idx += len(sep)
         return list_splits
 
     def capitalize(self):
         return safe_string(self.string.capitalize(), trusted=self.trusted)
 
     def center(self, width, fillchar=' '):
-        new_str = self.string.center(width, fillchar)
-        left_fill = int(max(0, (width-len(self.string)+1)/2))*[False]
-        right_fill = int(max(0, (width-len(self.string))/2))*[False]
-        new_trusted = left_fill+self.trusted+right_fill
-        return safe_string(new_str, trusted=new_trusted)
+        if isinstance(fillchar, safe_string):
+            char_trust = fillchar.trusted[0]
+            string = self.string.center(width, fillchar.string)
+        else:
+            char_trust = False
+            string = self.string.center(width, fillchar)
+        left_fill = int(max(0, (width-len(self.string)+1)/2))*[char_trust]
+        right_fill = int(max(0, (width-len(self.string))/2))*[char_trust]
+        trusted = left_fill+self.trusted+right_fill
+        return safe_string(
+            string, 
+            trusted=trusted)
 
     def find(self, sub, *args):
         return self.string.find(sub, *args)
 
     def ljust(self, width, fillchar=' '):
-        new_str = self.string.ljust(width, fillchar)
-        new_trusted = self.trusted + max(0, (width-len(self.string)))*[False]
-        return safe_string(new_str, trusted=new_trusted)
+        if isinstance(fillchar, safe_string):
+            char_trust = fillchar.trusted[0]
+            string = self.string.ljust(width, fillchar.string)
+        else:
+            char_trust = False
+            string = self.string.ljust(width, fillchar)
+        trusted = self.trusted + max(0, (width-len(self.string)))*[char_trust]
+        return safe_string(
+            string, 
+            trusted=trusted)
 
     def rfind(self, sub, *args):
         return self.string.rfind(sub, *args)
@@ -206,6 +229,9 @@ class safe_string:
 
     def isidentifier(self):
         return self.string.isidentifier()
+
+    def isnumeric(self):
+        return self.string.isnumeric()
 
 if __name__ == "__main__":
     def test(haystack, *args, **kwargs):
