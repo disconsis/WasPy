@@ -7,7 +7,10 @@ class safe_string:
             trusted if trusted is not None 
             else [False for _ in self.string]
         )
-        
+
+    def __le__(self, other):
+        return self.string.__le__(other.string)
+
     def __lt__(self, other):
         return self.string.__lt__(other.string)
 
@@ -22,6 +25,9 @@ class safe_string:
 
     def __ge__(self, other):
         return self.string.__ge__(other.string)
+
+    def __gt__(self, other):
+        return self.string.__gt__(other.string)
 
     def __contains__(self, subs):
         return self.string.__contains__(subs.string)
@@ -48,6 +54,9 @@ class safe_string:
 
     def index(self, subs):
         return self.string.index(subs.string)
+
+    def rindex(self, subs, *args, **kwargs):
+        return self.string.index(subs.string, *args, **kwargs)
 
     def expandtabs(self, tabsize = 8):
         string = ""
@@ -99,6 +108,9 @@ class safe_string:
         safe_string_list += [self[start:]]
         return safe_string_list
 
+    def startswith(self, prefix, *args, **kwargs):
+        return self.string.startswith(prefix.string, *args, **kwargs)
+
     def endswith(self, suffix, start=0, end=math.inf):
         end = min(end, len(suffix))
         return self.string.endswith(suffix, start, end)
@@ -127,6 +139,9 @@ class safe_string:
             self.string * num,
             trusted=self.trusted * num
         )
+
+    def __rmul__(self, num):
+        return self.__mul__(num)
 
     def replace(self, old, new, count=math.inf):
         final = safe_string("")
@@ -159,6 +174,25 @@ class safe_string:
             if sep != None and len(sep) > 0:
                 start_idx += len(sep)
         return list_splits
+
+    def rsplit(self, sep=None, maxsplit=-1):
+        str_splits = self.string.rsplit(sep=sep, maxsplit=maxsplit)
+        start_idx = 0
+        result = []
+
+        for elem in str_splits:
+            elem_trusted = self.trusted[start_idx:start_idx + len(elem)]
+            result.append(safe_string(elem, trusted=elem_trusted))
+
+            start_idx += len(elem)
+            if sep is None:
+                while start_idx < len(self.string) \
+                        and self.string[start_idx].isspace():
+                    start_idx += 1
+            else:
+                start_idx += len(sep)
+
+        return result
 
     def capitalize(self):
         return safe_string(self.string.capitalize(), trusted=self.trusted)
@@ -221,17 +255,71 @@ class safe_string:
     def upper(self):
         return safe_string(self.string.upper(), trusted=self.trusted)
 
+    def lower(self):
+        return safe_string(self.string.lower(), trusted=self.trusted)
+
+    def swapcase(self):
+        return safe_string(self.string.swapcase(), trusted=self.trusted)
+
     def islower(self):
         return self.string.islower()
 
+    def isupper(self):
+        return self.string.isupper()
+
     def isspace(self):
         return self.string.isspace()
+
+    def isdecimal(self):
+        return self.string.isdecimal()
 
     def isidentifier(self):
         return self.string.isidentifier()
 
     def isnumeric(self):
         return self.string.isnumeric()
+
+    def isalpha(self):
+        return self.string.isalpha()
+
+    def isprintable(self):
+        return self.string.isprintable()
+
+    def __str__(self):
+        return self.string.__str__()
+
+    # TODO: maybe return a safe_bytestring later
+    def encode(self, *args, **kwargs):
+        return self.string.encode(*args, **kwargs)
+
+    def casefold(self):
+        return safe_string(self.string.casefold(), trusted=self.trusted)
+
+    def count(self, sub, *args, **kwargs):
+        return self.string.count(sub.string, *args, **kwargs)
+
+    def partition(self, sep):
+        (before, sep_part, after) = self.string.partition(sep)
+        before_trusted = self.trusted[:len(before)]
+        sep_trusted = self.trusted[len(before):len(before) + len(sep_part)]
+        after_trusted = self.trusted[len(before) + len(sep_part):]
+        return (
+            safe_string(before, trusted=before_trusted),
+            safe_string(sep_part, trusted=sep_trusted),
+            safe_string(after, trusted=after_trusted)
+        )
+
+    def rpartition(self, sep):
+        (before, sep_part, after) = self.string.rpartition(sep)
+        before_trusted = self.trusted[:len(before)]
+        sep_trusted = self.trusted[len(before):len(before) + len(sep_part)]
+        after_trusted = self.trusted[len(before) + len(sep_part):]
+        return (
+            safe_string(before, trusted=before_trusted),
+            safe_string(sep_part, trusted=sep_trusted),
+            safe_string(after, trusted=after_trusted)
+        )
+
 
 if __name__ == "__main__":
     def test(haystack, *args, **kwargs):
@@ -353,3 +441,22 @@ if __name__ == "__main__":
     # strip_test("   he  llo   ")
     # strip_test("hello   ", "o")
     # strip_test("hell", "o")
+
+    def rsplit_test(string, *args, **kwargs):
+        actual = [elem.string
+                  for elem in safe_string(string).rsplit(*args, **kwargs)]
+        expected = string.rsplit(*args, **kwargs)
+        if actual == expected:
+            print('.')
+        else:
+            print('!', "actual:", actual, "expected:", expected)
+
+    # rsplit_test("abc def")
+    # rsplit_test("abc  def")
+    # rsplit_test(" abc  def")
+    # rsplit_test(" abc  \ndef\ndklfjd\ndd\n\n\ndlls\tfoo\t\n sls\n")
+    # rsplit_test(" abc  \ndef\ndklfjd\ndd\n\n\ndlls\tfoo\t\n sls\n", maxsplit=4)
+    # rsplit_test("-abc--d-ef-", sep="-")
+    # rsplit_test("-abc--d-ef-", sep="-", maxsplit=3)
+    # rsplit_test("-abc--d-ef-", sep="--")
+    # rsplit_test("-abc--d-ef-", sep="--", maxsplit=3)
