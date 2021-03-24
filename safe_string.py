@@ -55,8 +55,8 @@ class safe_string:
     def isalnum(self):
         return self.string.isalnum()
 
-    def index(self, subs):
-        return self.string.index(subs.string)
+    def index(self, subs, *args, **kwargs):
+        return self.string.index(subs.string, *args, **kwargs)
 
     def rindex(self, subs, *args, **kwargs):
         return self.string.index(subs.string, *args, **kwargs)
