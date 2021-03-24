@@ -15,7 +15,10 @@ class safe_string:
         return self.string.__lt__(other.string)
 
     def __eq__(self, other):
-        return self.string.__eq__(other.string)
+        if isinstance(other, safe_string):
+            return self.string.__eq__(other.string)
+        else:
+            return self.string.__eq__(other)
 
     def __ne__(self, other):
         if isinstance(other, safe_string):
@@ -111,9 +114,8 @@ class safe_string:
     def startswith(self, prefix, *args, **kwargs):
         return self.string.startswith(prefix.string, *args, **kwargs)
 
-    def endswith(self, suffix, start=0, end=math.inf):
-        end = min(end, len(suffix))
-        return self.string.endswith(suffix, start, end)
+    def endswith(self, suffix, *args, **kwargs):
+        return self.string.endswith(suffix.string, *args, **kwargs)
 
     def __getitem__(self, key):
         if isinstance(key, int):
