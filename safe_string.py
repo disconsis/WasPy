@@ -297,12 +297,12 @@ class safe_string:
     def isprintable(self):
         return self.string.isprintable()
 
-    # def __str__(self):
-    #     return self
+    def __str__(self):
+        return self
 
-    # def __repr__(self):
-    #     return safe_string(repr(self.string),
-    #                        trusted=[False] + self.trusted + [False])
+    def __repr__(self):
+        return safe_string(repr(self.string),
+                           trusted=[False] + self.trusted + [False])
 
     # TODO: maybe return a safe_bytestring later
     def encode(self, *args, **kwargs):
