@@ -262,22 +262,24 @@ class safe_string:
         return self.string.find(sub, *args)
 
     def join(self, seq):
-        seq_str = []
-        for s in seq:
-            seq_str += [s.string]
+        seq = iter(seq)
 
-        str_join = self.string.join(seq_str)
-        trusted = []
-        i = 0
-        print(seq_str)
-        for s in seq:
-            if(i == len(seq)-1):
-                trusted += s.trusted 
-            else:   
-                trusted += (s.trusted + self.trusted)
-            i += 1
-        return safe_string(str_join ,trusted = trusted)
+        def make_safe(elem):
+            if isinstance(elem, safe_string):
+                return elem
+            else:
+                return safe_string(elem)
 
+        try:
+            first_elem = next(seq)
+            final = make_safe(first_elem)
+        except StopIteration:
+            return safe_string("")
+
+        for elem in seq:
+            final += self + make_safe(elem)
+
+        return final
 
     def rfind(self, sub, *args):
         return self.string.rfind(sub, *args)
@@ -476,6 +478,14 @@ if __name__ == "__main__":
     def dbg_safestring(string):
         return safe_string(string, [True, False] * (len(string) // 2) + [True] * (len(string) % 2))
 
+    def dbg_print_safestring(safestring):
+        print(safestring.string)
+        for elem in safestring.trusted:
+            if elem is True:
+                print('.',end='')
+            else:
+                print('x',end='')
+        print()
 
     def strip_test(string, chars=None):
         safe_str = dbg_safestring(string)
@@ -535,9 +545,20 @@ if __name__ == "__main__":
 
     def join_test(string, seq=None):
         safe_str = dbg_safestring(string)
-        seq = (safe_str.upper(), safe_str.upper())
+        if seq is None:
+            seq = (safe_str.upper(), safe_str.upper())
         result = safe_str.join(seq)
-        print(result.string)
-        print(result.trusted)
+        dbg_print_safestring(result)
+        # print(result.string)
+        # print(result.trusted)
 
-join_test("lala")
+    # join_test("lala")
+    # join_test(string = "-", seq = (str(x) for x in range(1, 20)))
+    # join_test(string = "-", seq = {str(x): x for x in range(1, 20)})
+    # join_test(string = "-", seq = [str(x) for x in range(1, 20)])
+    # join_test(string = "-=", seq = (str(x) for x in range(1, 20)))
+    # join_test(string = "-=", seq = {str(x): x for x in range(1, 20)})
+    # join_test(string = "-=", seq = [str(x) for x in range(1, 20)])
+    # join_test(string = "-=", seq = (dbg_safestring("xyz"),
+    #                                 dbg_safestring("foo"),
+    #                                 dbg_safestring("blah")))
