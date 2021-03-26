@@ -3,9 +3,8 @@
 
 "fmt string {field!conv:spec}".format(1, 2, 3, key="blah", num=5, obj=Person())
 
-
-"   {{ }}  {f1}          {f2}       {f3}        ".format(....)
-[          ----          ----       ----        ]
+"   {{ }}  {f1}          {f2}       {f3}       {{blah}} {{{should}}} ".format(....)
+[   ll rr  ----          ----       ----       ll    rr ll--------rr  ]
 
 f1 : arg1
 f2 : arg3
@@ -28,6 +27,7 @@ def render_field(arg1, conv1, spec1):
 
 ## Pseudocode
 1. find start, end of each field hole # use single-pass, counting { and }'s # `_do_build_string`
+  - also return escaped { and } holes
 2. parse field into 'field.lookup', 'conv', 'spec'
 3. relate field.lookup to object from arguments # `_get_argument` (make sure to do lookup)
 4. call `render_field()` on it to get length # `self._render_field` # needs testing
