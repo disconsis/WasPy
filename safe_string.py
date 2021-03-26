@@ -261,6 +261,24 @@ class safe_string:
     def find(self, sub, *args):
         return self.string.find(sub, *args)
 
+    def join(self, seq):
+        seq_str = []
+        for s in seq:
+            seq_str += [s.string]
+
+        str_join = self.string.join(seq_str)
+        trusted = []
+        i = 0
+        print(seq_str)
+        for s in seq:
+            if(i == len(seq)-1):
+                trusted += s.trusted 
+            else:   
+                trusted += (s.trusted + self.trusted)
+            i += 1
+        return safe_string(str_join ,trusted = trusted)
+
+
     def rfind(self, sub, *args):
         return self.string.rfind(sub, *args)
 
@@ -513,3 +531,13 @@ if __name__ == "__main__":
                                  [True, False] * (len(string) // 2) + [True] * (len(string) % 2))
         print([(elem.string, elem.trusted) for elem in safestring.rsplit(*args,
                                                                          **kwargs)])
+
+
+    def join_test(string, seq=None):
+        safe_str = dbg_safestring(string)
+        seq = (safe_str.upper(), safe_str.upper())
+        result = safe_str.join(seq)
+        print(result.string)
+        print(result.trusted)
+
+join_test("lala")
