@@ -46,3 +46,20 @@ objspace/std/newformat.py
 ## TODO
 - make sure ascii() works correctly on safestring
 - mod: "%4d %s" % (5, "foo")
+
+# Syntax-Aware Checking
+
+## Pseudocode
+1. call `sqlparse.parse` and `.flatten()` on the `self.string` -> list of tokens
+2. for each token, figure out starting index (linear pass taking sum of lengths)
+3. for each token, if `token not in sqlparse.tokens.Literal`, then make sure each character is trusted (using the starting index to index into `self.trusted`)
+4. if this check fails for any character, return *SQLI detected*, Otherwise, *No SQLI*
+
+```python
+def tcheck(string):
+    for statement in sqlparse.parse(string):
+        print("Statement:", str(statement))
+        for token in statement.flatten():
+            isliteral = token.ttype in sqlparse.tokens.Literal
+            print(f"Token: {token} \t\t\t type = {token.ttype} \t\t lit = {isliteral}")
+```
