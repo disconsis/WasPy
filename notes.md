@@ -63,3 +63,20 @@ def tcheck(string):
             isliteral = token.ttype in sqlparse.tokens.Literal
             print(f"Token: {token} \t\t\t type = {token.ttype} \t\t lit = {isliteral}")
 ```
+
+## Notes
+- Maybe quotes in string literals should also be trusted
+
+## Testing
+- Get bunch of sql query templates, attack payloads, and benign sql queries
+- for template in templates:
+  - for payload in attack payloads:
+    - create query
+    - run `has_sqli`
+    - if true, then fine
+    - otherwise, could be because of syntax error
+    - run query against bunch of sql servers
+    - if one of them doesn't mark it as a syntax error, flag as *false negative*
+- for query in benign queries:
+  - run `has_sqli`
+  - if true, flag as *false positive*
