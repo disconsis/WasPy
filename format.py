@@ -71,7 +71,7 @@ def construct_trusted(format_string, gl_holes, trusted_result):
         final_trusted += format_string.trusted[prev_index:start]
         new_trusted = []
         if gl_holes[gl_index][0] == 'l' or gl_holes[gl_index][0] == 'r':
-            new_trusted += format_string.trusted[end]
+            new_trusted += [format_string.trusted[end]]
         else:
             new_trusted += trusted_result[hl_index]
             hl_index += 1
