@@ -364,6 +364,14 @@ class safe_string:
             safe_string(after, trusted=after_trusted)
         )
 
+def dbg_print_safestring(safestring):
+    print(safestring.string)
+    for elem in safestring.trusted:
+        if elem is True:
+            print('.',end='')
+        else:
+            print('x',end='')
+    print()
 
 if __name__ == "__main__":
     def test(haystack, *args, **kwargs):
@@ -478,14 +486,6 @@ if __name__ == "__main__":
     def dbg_safestring(string):
         return safe_string(string, [True, False] * (len(string) // 2) + [True] * (len(string) % 2))
 
-    def dbg_print_safestring(safestring):
-        print(safestring.string)
-        for elem in safestring.trusted:
-            if elem is True:
-                print('.',end='')
-            else:
-                print('x',end='')
-        print()
 
     def strip_test(string, chars=None):
         safe_str = dbg_safestring(string)
