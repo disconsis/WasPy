@@ -30,10 +30,6 @@ def _do_build_string(s):
     print()
 
 
-def KETAN(hole):
-    return a, b, c
-
-
 def render_field(holes):
     result = []
     for hole in holes:
@@ -144,9 +140,7 @@ def get_argument(args, kwargs):
 
         i = 0
         end = len(name)
-        while i < end:
-            if name[i] in ("[", "."):
-                break
+        while i < end and name[i] not in ("[", "."):
             i += 1
 
         index = name[:i]
@@ -163,7 +157,11 @@ def get_argument(args, kwargs):
 
 def resolve_lookups(obj, name):
     end = len(name)
+
     i = 0
+    while i < end and name[i] not in ("[", "."):
+        i += 1
+
     while i < end:
         c = name[i]
         if c == ".":
@@ -190,6 +188,18 @@ def resolve_lookups(obj, name):
             obj = obj[index]
 
     return obj
+
+
+def field_parser(args, kwargs):
+    get_arg = get_argument(args, kwargs)
+
+    def _parser(hole):
+        name, conv, spec = parse_field(hole)
+        obj = get_arg(name)
+        obj = resolve_lookups(obj, name)
+        return obj, conv, spec
+
+    return _parser
 
 
 def test_parse_field():
@@ -244,3 +254,10 @@ def test_resolve_lookups():
     items = SimpleNamespace()
     items.first = {"p": person}
     assert resolve_lookups(items, ".first[p].name[0]") == "foo"
+
+
+def test_field_parser():
+    parser = field_parser([10, 20, 30, 40], {"name": "foo"})
+    assert parser("{name[0]}") == ("f", None, "")
+    assert parser("{}") == (10, None, "")
+    assert parser("{name[0]:[1]}") == ("f", None, "[1]")
