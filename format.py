@@ -114,7 +114,7 @@ def parse_field(hole):
                 # then :<spec> exists
                 spec = hole[i+3:]
             else:
-                spec = None
+                spec = ""
 
             return name, conversion, spec
 
@@ -133,7 +133,7 @@ def parse_field(hole):
         i += 1
 
     # no : or ! encountered
-    return hole, None, None
+    return hole, None, ""
 
 
 def get_argument(args, kwargs):
@@ -193,28 +193,28 @@ def resolve_lookups(obj, name):
 
 
 def test_parse_field():
-    assert parse_field("{}") == ("", None, None)
-    assert parse_field("{0}") == ("0", None, None)
-    assert parse_field("{name}") == ("name", None, None)
+    assert parse_field("{}") == ("", None, "")
+    assert parse_field("{0}") == ("0", None, "")
+    assert parse_field("{name}") == ("name", None, "")
 
-    assert parse_field("{!r}") == ("", "r", None)
-    assert parse_field("{0!s}") == ("0", "s", None)
-    assert parse_field("{name!a}") == ("name", "a", None)
+    assert parse_field("{!r}") == ("", "r", "")
+    assert parse_field("{0!s}") == ("0", "s", "")
+    assert parse_field("{name!a}") == ("name", "a", "")
 
-    assert parse_field("{[0]}") == ("[0]", None, None)
-    assert parse_field("{0.blah}") == ("0.blah", None, None)
-    assert parse_field("{name}") == ("name", None, None)
-    assert parse_field("{.name}") == (".name", None, None)
+    assert parse_field("{[0]}") == ("[0]", None, "")
+    assert parse_field("{0.blah}") == ("0.blah", None, "")
+    assert parse_field("{name}") == ("name", None, "")
+    assert parse_field("{.name}") == (".name", None, "")
 
     assert parse_field("{[0]:!foo}") == ("[0]", None, "!foo")
     assert parse_field("{0.blah:x}") == ("0.blah", None, "x")
     assert parse_field("{name:[!foo]}") == ("name", None, "[!foo]")
-    assert parse_field("{.name[!foo]}") == (".name[!foo]", None, None)
+    assert parse_field("{.name[!foo]}") == (".name[!foo]", None, "")
 
     assert parse_field("{[0]!x:!foo}") == ("[0]", "x", "!foo")
     assert parse_field("{0.blah!f:x}") == ("0.blah", "f", "x")
     assert parse_field("{name!f:[!foo]}") == ("name", "f", "[!foo]")
-    assert parse_field("{.name[!foo]!c}") == (".name[!foo]", "c", None)
+    assert parse_field("{.name[!foo]!c}") == (".name[!foo]", "c", "")
 
 
 def test_get_argument():
