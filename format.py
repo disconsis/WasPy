@@ -1,3 +1,61 @@
+from safe_string import safe_string, dbg_safestring, dbg_print_safestring
+
+class OverrideUnsafe:
+    def __init__(self, safe_obj):
+        self.obj = safe_obj
+
+    def __format__(self, *args, **kwargs):
+        if isinstance(self.obj, safe_string):
+            result = format(self.obj, *args, **kwargs)
+        else:
+            result = self.obj.__format__(*args, **kwargs)
+
+        if isinstance(result, safe_string):
+            return result.string
+        else:
+            return result
+
+    def __repr__(self):
+        result = self.obj.__repr__()
+        if isinstance(result, safe_string):
+            return result.string
+        else:
+            return result
+
+    def __str__(self):
+        result = self.obj.__str__()
+        if isinstance(result, safe_string):
+            return result.string
+        else:
+            return result
+
+    def __getitem__(self, *args, **kwargs):
+        return OverrideUnsafe(self.obj.__getitem__(*args, **kwargs))
+
+    def __getattr__(self, *args, **kwargs):
+        return OverrideUnsafe(self.obj.__getattribute__(*args, **kwargs))
+
+
+def format(fmt_string, *args, **kwargs):
+    if not isinstance(fmt_string, safe_string):
+        fmt_string = safe_string(fmt_string)
+    unsafe_args = list(map(OverrideUnsafe, args))
+    unsafe_kwargs = {key: OverrideUnsafe(value)
+                     for key, value in kwargs.items()}
+
+    result_string = fmt_string.string.format(*unsafe_args, **unsafe_kwargs)
+    arg_holes, all_holes = _do_build_string(fmt_string)
+    arg_hole_trusts = render_field(arg_holes, fmt_string, args, kwargs)
+    final_trusted = construct_trusted(fmt_string, all_holes, arg_hole_trusts)
+    if len(result_string) != len(final_trusted):
+        print("ERROR:")
+        dbg_print_safestring(safe_string(result_string, trusted=final_trusted))
+        print(
+            f"str len = {len(result_string)} | trust len = {len(final_trusted)}")
+        raise Exception("mismatched lengths")
+    return safe_string(result_string, trusted=final_trusted)
+
+
 def _do_build_string(s):
     isHole = False
     res = []
@@ -25,41 +83,59 @@ def _do_build_string(s):
                 i += 1
         i += 1
 
-    print(holes)
-    print(res)
-    print()
+#     print(holes)
+#     print(res)
+#     print()
+
+    return holes, res
 
 
-def render_field(holes):
+def render_field(holes, fmt_string, args, kwargs):
     result = []
+    parser = field_parser(args, kwargs)
     for hole in holes:
-        value, conv, spec = KETAN(hole)
+        value, conv, spec = parser(fmt_string[hole[0]:hole[1] + 1])
+        if not isinstance(spec, safe_string):
+            spec = safe_string(spec)
         s = value
         is_safe = False
         if isinstance(value, safe_string):
             is_safe = True
             s = value.string
 
-    if conv == 'r':
-        trusted = value.__repr__().trusted if is_safe else [
-            False]*len(repr(s).__format__(spec))
-        result.append(trusted)
-    elif conv == 's':
-        trusted = value.__str__().trusted if is_safe else [
-            False]*len(str(s).__format__(spec))
-        result.append(trusted)
-    elif conv == 'a':
-        trusted = [False] + value.trusted + \
-            [False] if is_safe else [False]*(len(value.string)+2)
-        result.append(trusted)
-    else:
-        trusted = value.trusted if is_safe else [False]*len(s.__format__(spec))
-        result.append(trusted)
+        if conv == 'r':
+            trusted = value.__repr__().trusted if is_safe else [
+                False]*len(repr(s).__format__(spec.string))
+            result.append(trusted)
+        elif conv == 's':
+            trusted = value.__str__().trusted if is_safe else [
+                False]*len(str(s).__format__(spec.string))
+            result.append(trusted)
+        elif conv == 'a':
+            if not is_safe:
+                trusted = [False] * len(ascii(value))
+            elif value.isascii():
+                trusted = [False] + value.trusted + [False]
+            else:
+                # go char-by-char and call ascii
+                trusted = []
+                for char in value:
+                    newchar = ascii(char.string)[1:-1] # remove quotes
+                    trusted += len(newchar) * char.trusted
+                trusted = [False] + trusted + [False] # for quotes
+
+            result.append(trusted)
+        else:
+            trusted = value.trusted if is_safe else [
+                False]*len(s.__format__(spec.string))
+            result.append(trusted)
 
     return result
 
 
 def construct_trusted(format_string, gl_holes, trusted_result):
+    # print(f"trusted_result: {trusted_result}")
+    # print(f"gl_holes: {gl_holes}")
     prev_index = 0
     gl_index = 0
     hl_index = 0
@@ -94,7 +170,6 @@ for s in test_cases:
 
 
 def parse_field(hole):
-    assert hole.startswith("{") and hole.endswith("}")
     hole = hole[1:-1]
 
     end = len(hole)
@@ -110,7 +185,7 @@ def parse_field(hole):
                 # then :<spec> exists
                 spec = hole[i+3:]
             else:
-                spec = ""
+                spec = safe_string("")
 
             return name, conversion, spec
 
@@ -261,3 +336,10 @@ def test_field_parser():
     assert parser("{name[0]}") == ("f", None, "")
     assert parser("{}") == (10, None, "")
     assert parser("{name[0]:[1]}") == ("f", None, "[1]")
+
+
+if __name__ == '__main__':
+    fmt_s = "{name[0]!a} {!s} {!r}"
+    fmt = safe_string(fmt_s, trusted=[True] * len(fmt_s))
+    nino = b"Ni\xc3\xb10".decode("utf-8")
+    dbg_print_safestring(format(fmt, 10, 18, name=[dbg_safestring(nino)]))

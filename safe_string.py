@@ -1,5 +1,6 @@
 import math
 
+
 class safe_string:
     def __new__(cls, string, trusted=None):
         return super(safe_string, cls).__new__(cls)
@@ -37,6 +38,9 @@ class safe_string:
 
     def __contains__(self, subs):
         return self.string.__contains__(subs.string)
+
+    def __hash__(self):
+        return self.string.__hash__()
 
     def title(self):
         return safe_string(
@@ -111,14 +115,16 @@ class safe_string:
         else:
             char_trust = False
             string = self.string.rjust(width, fillchar)
-        trusted = self.trusted if ((len(string)-len(self.string)) <= 0) else [char_trust]*(len(string)-len(self.string)) + self.trusted
+        trusted = self.trusted if ((len(string)-len(self.string)) <= 0) else [
+            char_trust]*(len(string)-len(self.string)) + self.trusted
         return safe_string(
             string,
             trusted=trusted)
 
     def zfill(self, width):
         string = self.string.zfill(width)
-        trusted = self.trusted if ((len(string)-len(self.string)) <= 0) else [False]*(len(string)-len(self.string)) + self.trusted
+        trusted = self.trusted if ((len(string)-len(self.string)) <= 0) else [
+            False]*(len(string)-len(self.string)) + self.trusted
         return safe_string(
             string,
             trusted=trusted)
@@ -324,6 +330,9 @@ class safe_string:
         return safe_string(repr(self.string),
                            trusted=[False] + self.trusted + [False])
 
+    def __int__(self, *args, **kwargs):
+        return int(self.string, *args, **kwargs)
+
     # TODO: maybe return a safe_bytestring later
     def encode(self, *args, **kwargs):
         return self.string.encode(*args, **kwargs)
@@ -364,19 +373,26 @@ class safe_string:
             safe_string(after, trusted=after_trusted)
         )
 
+
+def dbg_safestring(string):
+    return safe_string(string, [True, False] * (len(string) // 2) + [True] * (len(string) % 2))
+
+
 def dbg_print_safestring(safestring):
     print(safestring.string)
     for elem in safestring.trusted:
         if elem is True:
-            print('.',end='')
+            print('.', end='')
         else:
-            print('x',end='')
+            print('x', end='')
     print()
+
 
 if __name__ == "__main__":
     def test(haystack, *args, **kwargs):
         s = safe_string(haystack, trusted=[True for _ in haystack])
-        replaced = s.replace(safe_string("bar"), safe_string("ABCDEF"), *args, **kwargs)
+        replaced = s.replace(safe_string(
+            "bar"), safe_string("ABCDEF"), *args, **kwargs)
         print(replaced.string)
         print("".join(str(int(trust)) for trust in replaced.trusted))
 
@@ -397,29 +413,30 @@ if __name__ == "__main__":
         titled = s.title()
         print(titled.string)
         # print("".join(str(int(trust)) for trust in replaced.trusted))
+
     def test4(haystack, needle):
         h = safe_string(haystack, trusted=[True for _ in haystack])
         n = safe_string(needle, trusted=[True for _ in needle])
         print(h.index(n))
-    
+
     def test5(haystack, width, c):
         h = safe_string(haystack, trusted=[True for _ in haystack])
         print(h.rjust(width).trusted)
-        print(h.rjust(width,c).string)
+        print(h.rjust(width, c).string)
 
     def test2(haystack, *args, **kwargs):
         s = safe_string(haystack, trusted=[True for _ in haystack])
-        replaced = s.replace(safe_string("bar"), safe_string("ABCDEF", 
-            trusted=[True, False, True, False, True, False]
-        ), *args, **kwargs)
+        replaced = s.replace(safe_string("bar"), safe_string("ABCDEF",
+                                                             trusted=[
+                                                                 True, False, True, False, True, False]
+                                                             ), *args, **kwargs)
         print(replaced.string)
         print("".join(str(int(trust)) for trust in replaced.trusted))
-    
+
     def test6(haystack):
         s = safe_string(haystack, trusted=[True for _ in haystack])
         lines = s.splitlines(True)
         [print(l.string) for l in lines]
- 
 
     # test2("foobarblahbarbaz")
     # test2("foobarblahbarbaz", count=1)
@@ -483,10 +500,6 @@ if __name__ == "__main__":
     # rstrip_test("hello", "o")
     # rstrip_test("hell", "o")
 
-    def dbg_safestring(string):
-        return safe_string(string, [True, False] * (len(string) // 2) + [True] * (len(string) % 2))
-
-
     def strip_test(string, chars=None):
         safe_str = dbg_safestring(string)
         strip = safe_str.strip(chars)
@@ -541,7 +554,6 @@ if __name__ == "__main__":
                                  [True, False] * (len(string) // 2) + [True] * (len(string) % 2))
         print([(elem.string, elem.trusted) for elem in safestring.rsplit(*args,
                                                                          **kwargs)])
-
 
     def join_test(string, seq=None):
         safe_str = dbg_safestring(string)
