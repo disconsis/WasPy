@@ -92,3 +92,155 @@ def construct_trusted(format_string, gl_holes, trusted_result):
 test_cases = ["{abc}", "{{", "}}", "{{{}}}", "{}{}{}", "}", "{{{{}}}}"]
 for s in test_cases:
     _do_build_string(s)
+
+
+# KETAN
+
+
+def parse_field(hole):
+    assert hole.startswith("{") and hole.endswith("}")
+    hole = hole[1:-1]
+
+    end = len(hole)
+    i = 0
+    while i < end:
+        c = hole[i]
+        if c == "!":
+            # <name>  !  <conv>   :   <spec>
+            #         i   i+1    i+2  i+3...
+            name = hole[:i]
+            conversion = hole[i + 1]
+            if i + 2 < end:
+                # then :<spec> exists
+                spec = hole[i+3:]
+            else:
+                spec = None
+
+            return name, conversion, spec
+
+        elif c == ":":
+            # <name>  :  <spec>
+            #         i  i+1...
+            name = hole[:i]
+            spec = hole[i+1:]
+
+            return name, None, spec
+
+        elif c == "[":
+            while hole[i] != "]":
+                i += 1
+
+        i += 1
+
+    # no : or ! encountered
+    return hole, None, None
+
+
+def get_argument(args, kwargs):
+    auto_numbering = -1
+
+    def _get_argument(name):
+        nonlocal auto_numbering
+
+        i = 0
+        end = len(name)
+        while i < end:
+            if name[i] in ("[", "."):
+                break
+            i += 1
+
+        index = name[:i]
+        if not index:
+            auto_numbering += 1
+            return args[auto_numbering]
+        elif index.isnumeric():
+            return args[int(index)]
+        else:
+            return kwargs[index]
+
+    return _get_argument
+
+
+def resolve_lookups(obj, name):
+    end = len(name)
+    i = 0
+    while i < end:
+        c = name[i]
+        if c == ".":
+            i += 1
+            start = i
+            while i < end:
+                if name[i] in (".", "["):
+                    break
+                i += 1
+            attr = name[start:i]
+            obj = getattr(obj, attr)
+
+        elif c == "[":
+            i += 1
+            start = i
+            while i < end:
+                if name[i] == "]":
+                    break
+                i += 1
+            index = name[start:i]
+            i += 1  # skip the ']'
+            if index.isnumeric():
+                index = int(index)
+            obj = obj[index]
+
+    return obj
+
+
+def test_parse_field():
+    assert parse_field("{}") == ("", None, None)
+    assert parse_field("{0}") == ("0", None, None)
+    assert parse_field("{name}") == ("name", None, None)
+
+    assert parse_field("{!r}") == ("", "r", None)
+    assert parse_field("{0!s}") == ("0", "s", None)
+    assert parse_field("{name!a}") == ("name", "a", None)
+
+    assert parse_field("{[0]}") == ("[0]", None, None)
+    assert parse_field("{0.blah}") == ("0.blah", None, None)
+    assert parse_field("{name}") == ("name", None, None)
+    assert parse_field("{.name}") == (".name", None, None)
+
+    assert parse_field("{[0]:!foo}") == ("[0]", None, "!foo")
+    assert parse_field("{0.blah:x}") == ("0.blah", None, "x")
+    assert parse_field("{name:[!foo]}") == ("name", None, "[!foo]")
+    assert parse_field("{.name[!foo]}") == (".name[!foo]", None, None)
+
+    assert parse_field("{[0]!x:!foo}") == ("[0]", "x", "!foo")
+    assert parse_field("{0.blah!f:x}") == ("0.blah", "f", "x")
+    assert parse_field("{name!f:[!foo]}") == ("name", "f", "[!foo]")
+    assert parse_field("{.name[!foo]!c}") == (".name[!foo]", "c", None)
+
+
+def test_get_argument():
+    get_arg = get_argument([10, 20, 30, 40], {"name": "foo"})
+    assert get_arg("[0]") == 10
+    assert get_arg(".foo") == 20
+    assert get_arg("[0][1]") == 30
+    assert get_arg("name.blah") == "foo"
+    assert get_arg("3[0].blah") == 40
+
+
+def test_resolve_lookups():
+    assert resolve_lookups([{"name": "foo"}], "[0][name]") == "foo"
+
+    from types import SimpleNamespace
+    person = SimpleNamespace()
+    person.name = "foo"
+    assert resolve_lookups([{"p": person}], "[0][p].name") == "foo"
+
+    person = SimpleNamespace()
+    person.name = SimpleNamespace()
+    person.name.first = "foo"
+    assert resolve_lookups([{"p": person}], "[0][p].name.first") == "foo"
+
+    person = SimpleNamespace()
+    person.name = ["foo", "bar"]
+    items = SimpleNamespace()
+    items.first = {"p": person}
+    assert resolve_lookups(items, ".first[p].name[0]") == "foo"
