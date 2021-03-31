@@ -72,7 +72,9 @@ def _do_build_string(s):
             else:
                 isHole = True
                 lb_loc = i
-
+        elif s[i] == '[':
+            while s[i]!=']':
+                i += 1
         elif s[i] == '}':
             if isHole:
                 res.append(('h', (lb_loc, i)))
@@ -82,10 +84,6 @@ def _do_build_string(s):
                 res.append(('r', (i, i+1)))
                 i += 1
         i += 1
-
-#     print(holes)
-#     print(res)
-#     print()
 
     return holes, res
 
@@ -134,8 +132,6 @@ def render_field(holes, fmt_string, args, kwargs):
 
 
 def construct_trusted(format_string, gl_holes, trusted_result):
-    # print(f"trusted_result: {trusted_result}")
-    # print(f"gl_holes: {gl_holes}")
     prev_index = 0
     gl_index = 0
     hl_index = 0
@@ -158,16 +154,9 @@ def construct_trusted(format_string, gl_holes, trusted_result):
 
     return final_trusted
 
-    # min_start = min(lb[0])
-
-
 test_cases = ["{abc}", "{{", "}}", "{{{}}}", "{}{}{}", "}", "{{{{}}}}"]
 for s in test_cases:
     _do_build_string(s)
-
-
-# KETAN
-
 
 def parse_field(hole):
     hole = hole[1:-1]
