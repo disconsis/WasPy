@@ -18,6 +18,10 @@ def gen_random_safe_string(length):
     return safe_string(gen_random_string(length), trusted=gen_random_trusted(length))
 
 
+def gen_random_safe_from_unsafe(string):
+    return safe_string(string, trusted=gen_random_trusted(len(string)))
+
+
 def test_can_create_new_safe_strings():
     for length in range(100):
         unsafe = gen_random_string(length)
@@ -110,3 +114,17 @@ def test_substrings_are_returned_correctly():
             sub = safe[i:j]
             assert sub.string == string[i:j]
             assert sub.trusted == trusted[i:j]
+
+
+def test_safe_string_format():
+    template = gen_random_safe_from_unsafe("my name is {name} the {0}nd")
+    name = gen_random_safe_from_unsafe("ramses")
+    formatted = template.format(2, name=name)
+    assert formatted.string == "my name is ramses the 2nd"
+    assert formatted.trusted == (
+        template.trusted[: len("my name is ")]
+        + name.trusted
+        + template.trusted[len("my name is {name}") : len("my name is {name} the ")]
+        + [False]
+        + template.trusted[len("my name is {name} the {0}") :]
+    )
