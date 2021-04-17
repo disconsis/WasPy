@@ -389,65 +389,57 @@ def dbg_print_safestring(safestring):
 
 
 if __name__ == "__main__":
-    def test(haystack, *args, **kwargs):
+    def replace_test(haystack, *args, **kwargs):
         s = safe_string(haystack, trusted=[True for _ in haystack])
-        replaced = s.replace(safe_string(
-            "bar"), safe_string("ABCDEF"), *args, **kwargs)
+        replaced = s.replace(safe_string("bar"), 
+                    safe_string("ABCDEF", trusted=[True, False, True, False, True, False]), 
+                    *args, **kwargs)
         print(replaced.string)
         print("".join(str(int(trust)) for trust in replaced.trusted))
 
-    # test("foobarblahbarbaz")
-    # test("foobarblahbarbaz", count=1)
-    # test("foobarblahbar")
-    # test("foobarblahbar", count=1)
-    # test("foobarblahbar", count=5)
-    # test("fooblah", count=5)
+    print('------- TESTING: safe string str.replace ----')
+    replace_test("foobarblahbarbaz")
+    replace_test("foobarblahbarbaz", count=1)
+    replace_test("foobarblahbar")
+    replace_test("foobarblahbar", count=1)
+    replace_test("foobarblahbar", count=5)
+    replace_test("fooblah", count=5)
 
-    # print()
-    # print()
-    # print()
-    # print()
-
-    def test3(haystack, *args, **kwargs):
+    def title_test(haystack, *args, **kwargs):
         s = safe_string(haystack, trusted=[True for _ in haystack])
         titled = s.title()
         print(titled.string)
-        # print("".join(str(int(trust)) for trust in replaced.trusted))
+        print("".join(str(int(trust)) for trust in titled.trusted))
 
-    def test4(haystack, needle):
+    print('------- TESTING: safe string str.title ----')
+    title_test("needle")
+    title_test("nEeDlE")
+    title_test("NEEDLE")
+
+    def index_test(haystack, needle):
         h = safe_string(haystack, trusted=[True for _ in haystack])
         n = safe_string(needle, trusted=[True for _ in needle])
         print(h.index(n))
 
-    def test5(haystack, width, c):
+    print('------- TESTING: safe string str.index ----')
+    index_test("needle in a haystack", "needle")
+
+    def rjust_test(haystack, width, c):
         h = safe_string(haystack, trusted=[True for _ in haystack])
         print(h.rjust(width).trusted)
         print(h.rjust(width, c).string)
 
-    def test2(haystack, *args, **kwargs):
-        s = safe_string(haystack, trusted=[True for _ in haystack])
-        replaced = s.replace(safe_string("bar"), safe_string("ABCDEF",
-                                                             trusted=[
-                                                                 True, False, True, False, True, False]
-                                                             ), *args, **kwargs)
-        print(replaced.string)
-        print("".join(str(int(trust)) for trust in replaced.trusted))
+    print('------- TESTING: safe string str.rjust ----')
+    rjust_test("needle", 10, 'a')
 
-    def test6(haystack):
-        s = safe_string(haystack, trusted=[True for _ in haystack])
-        lines = s.splitlines(True)
-        [print(l.string) for l in lines]
+    def split_test(string, *args, **kwargs):
+        safestring = safe_string(string,
+                                 [True, False] * (len(string) // 2) + [True] * (len(string) % 2))
+        print([(elem.string, elem.trusted) for elem in safestring.split(*args,
+                                                                        **kwargs)])
 
-    # test2("foobarblahbarbaz")
-    # test2("foobarblahbarbaz", count=1)
-    # test2("foobarblahbar")
-    # test2("foobarblahbar", count=1)
-    # test2("foobarblahbar", count=5)
-    # test2("fooblah", count=5)
-    # test3("fooblah", count=5)
-    # test4("needle in a haystack", "needle")
-    # test5("needle", 10, 'a')
-    # test6("happy\nbirth\nday")
+    print('------- TESTING: safe string str.split ----')
+    split_test("happy\nbirth\nday")
 
     def center_test(string, trusted, width, fillchar=' '):
         safe_str = safe_string(string, trusted=trusted)
@@ -455,22 +447,24 @@ if __name__ == "__main__":
         print(new_safe_str.string, len(new_safe_str.string))
         print(new_safe_str.trusted)
 
-    # center_test("tell", [True]*4, 5)
-    # center_test("tell", [True]*4, 3)
-    # center_test("tell", [True]*4, 6)
-    # center_test("tell", [True,False,True,False], 6)
-    # center_test("tell", [True,False,True,False], 7)
-    # center_test("tell", [True,False,True,False], 2)
+    print('------- TESTING: safe string str.center ----')
+    center_test("tell", [True]*4, 5)
+    center_test("tell", [True]*4, 3)
+    center_test("tell", [True]*4, 6)
+    center_test("tell", [True,False,True,False], 6)
+    center_test("tell", [True,False,True,False], 7)
+    center_test("tell", [True,False,True,False], 2)
 
     def find_test(string, sub, *args):
         safe_str = safe_string(string, trusted=len(string)*[True])
         find = safe_str.find(sub, *args)
         print(find)
 
-    # find_test("hello", 'h')
-    # find_test("hello", 'h', 2)
-    # find_test("hello", 'e', 1)
-    # find_test("hello", 'l', 2, 3)
+    print('------- TESTING: safe string str.find ----')
+    find_test("hello", 'h')
+    find_test("hello", 'h', 2)
+    find_test("hello", 'e', 1)
+    find_test("hello", 'l', 2, 3)
 
     def ljust_test(string, width, fillchar=' '):
         safe_str = safe_string(string, trusted=len(string)*[True])
@@ -478,16 +472,18 @@ if __name__ == "__main__":
         print(ljust.string, len(ljust.string))
         print(ljust.trusted)
 
-    # ljust_test("hello", 2)
-    # ljust_test("hello", 7)
-    # ljust_test("hello", 8, 'f')
+    print('------- TESTING: safe string str.ljust ----')
+    ljust_test("hello", 2)
+    ljust_test("hello", 7)
+    ljust_test("hello", 8, 'f')
 
     def rfind_test(string, sub, *args):
         safe_str = safe_string(string, trusted=len(string)*[True])
         rfind = safe_str.rfind(sub, *args)
         print(rfind)
 
-    # rfind_test("hello", 'l', 2, 4)
+    print('------- TESTING: safe string str.rfind ----')
+    rfind_test("hello", 'l', 2, 4)
 
     def rstrip_test(string, chars=" "):
         safe_str = safe_string(string, trusted=len(string)*[True])
@@ -495,10 +491,11 @@ if __name__ == "__main__":
         print(rstrip.string, len(rstrip.string))
         print(rstrip.trusted)
 
-    # rstrip_test("hello   ")
-    # rstrip_test("hello   ", "o")
-    # rstrip_test("hello", "o")
-    # rstrip_test("hell", "o")
+    print('------- TESTING: safe string str.rstrip ----')
+    rstrip_test("hello   ")
+    rstrip_test("hello   ", "o")
+    rstrip_test("hello", "o")
+    rstrip_test("hell", "o")
 
     def strip_test(string, chars=None):
         safe_str = dbg_safestring(string)
@@ -506,29 +503,28 @@ if __name__ == "__main__":
         print(strip.string, len(strip.string))
         print(strip.trusted)
 
-    # strip_test("hello   ")
-    # strip_test("   he  llo   ")
-    # strip_test("hello   ", "o")
-    # strip_test("hell", "o")
+    print('------- TESTING: safe string str.strip ----')
+    strip_test("hello   ")
+    strip_test("   he  llo   ")
+    strip_test("hello   ", "o")
+    strip_test("hell", "o")
 
     def rsplit_test(string, *args, **kwargs):
-        actual = [elem.string
-                  for elem in safe_string(string).rsplit(*args, **kwargs)]
-        expected = string.rsplit(*args, **kwargs)
-        if actual == expected:
-            print('.')
-        else:
-            print('!', "actual:", actual, "expected:", expected)
+        safestring = safe_string(string,
+                                 [True, False] * (len(string) // 2) + [True] * (len(string) % 2))
+        print([(elem.string, elem.trusted) for elem in safestring.rsplit(*args,
+                                                                         **kwargs)])
 
-    # rsplit_test("abc def")
-    # rsplit_test("abc  def")
-    # rsplit_test(" abc  def")
-    # rsplit_test(" abc  \ndef\ndklfjd\ndd\n\n\ndlls\tfoo\t\n sls\n")
-    # rsplit_test(" abc  \ndef\ndklfjd\ndd\n\n\ndlls\tfoo\t\n sls\n", maxsplit=4)
-    # rsplit_test("-abc--d-ef-", sep="-")
-    # rsplit_test("-abc--d-ef-", sep="-", maxsplit=3)
-    # rsplit_test("-abc--d-ef-", sep="--")
-    # rsplit_test("-abc--d-ef-", sep="--", maxsplit=3)
+    print('------- TESTING: safe string str.rsplit ----')
+    rsplit_test("abc def")
+    rsplit_test("abc  def")
+    rsplit_test(" abc  def")
+    rsplit_test(" abc  \ndef\ndklfjd\ndd\n\n\ndlls\tfoo\t\n sls\n")
+    rsplit_test(" abc  \ndef\ndklfjd\ndd\n\n\ndlls\tfoo\t\n sls\n", maxsplit=4)
+    rsplit_test("-abc--d-ef-", sep="-")
+    rsplit_test("-abc--d-ef-", sep="-", maxsplit=3)
+    rsplit_test("-abc--d-ef-", sep="--")
+    rsplit_test("-abc--d-ef-", sep="--", maxsplit=3)
 
     def lstrip_test(string, chars=" "):
         safe_str = safe_string(string, trusted=(len(string) // 2)*[True, False]
@@ -537,23 +533,12 @@ if __name__ == "__main__":
         print(strip.string, len(strip.string))
         print(strip.trusted)
 
-    # lstrip_test("hello   ")
-    # lstrip_test("   he  llo   ")
-    # lstrip_test("  he  llo   ")
-    # lstrip_test("hello   ", "o")
-    # lstrip_test("hell", "o")
-
-    def split_test(string, *args, **kwargs):
-        safestring = safe_string(string,
-                                 [True, False] * (len(string) // 2) + [True] * (len(string) % 2))
-        print([(elem.string, elem.trusted) for elem in safestring.split(*args,
-                                                                        **kwargs)])
-
-    def rsplit_test(string, *args, **kwargs):
-        safestring = safe_string(string,
-                                 [True, False] * (len(string) // 2) + [True] * (len(string) % 2))
-        print([(elem.string, elem.trusted) for elem in safestring.rsplit(*args,
-                                                                         **kwargs)])
+    print('------- TESTING: safe string str.lstrip ----')
+    lstrip_test("hello   ")
+    lstrip_test("   he  llo   ")
+    lstrip_test("  he  llo   ")
+    lstrip_test("hello   ", "o")
+    lstrip_test("hell", "o")
 
     def join_test(string, seq=None):
         safe_str = dbg_safestring(string)
@@ -561,16 +546,17 @@ if __name__ == "__main__":
             seq = (safe_str.upper(), safe_str.upper())
         result = safe_str.join(seq)
         dbg_print_safestring(result)
-        # print(result.string)
-        # print(result.trusted)
+        print(result.string)
+        print(result.trusted)
 
-    # join_test("lala")
-    # join_test(string = "-", seq = (str(x) for x in range(1, 20)))
-    # join_test(string = "-", seq = {str(x): x for x in range(1, 20)})
-    # join_test(string = "-", seq = [str(x) for x in range(1, 20)])
-    # join_test(string = "-=", seq = (str(x) for x in range(1, 20)))
-    # join_test(string = "-=", seq = {str(x): x for x in range(1, 20)})
-    # join_test(string = "-=", seq = [str(x) for x in range(1, 20)])
-    # join_test(string = "-=", seq = (dbg_safestring("xyz"),
-    #                                 dbg_safestring("foo"),
-    #                                 dbg_safestring("blah")))
+    print('------- TESTING: safe string str.join ----')
+    join_test("lala")
+    join_test(string = "-", seq = (str(x) for x in range(1, 20)))
+    join_test(string = "-", seq = {str(x): x for x in range(1, 20)})
+    join_test(string = "-", seq = [str(x) for x in range(1, 20)])
+    join_test(string = "-=", seq = (str(x) for x in range(1, 20)))
+    join_test(string = "-=", seq = {str(x): x for x in range(1, 20)})
+    join_test(string = "-=", seq = [str(x) for x in range(1, 20)])
+    join_test(string = "-=", seq = (dbg_safestring("xyz"),
+                                    dbg_safestring("foo"),
+                                    dbg_safestring("blah")))
