@@ -57,9 +57,17 @@ def test_safe_strings_return_correct_values_for_string_to_non_string_functions()
     assert (s1 >= s2) == (safe_string(s1) >= safe_string(s2))
 
     assert s1.isascii() == safe_string(s1).isascii()
+    assert s1.islower() == safe_string(s1).islower()
+    assert s1.isupper() == safe_string(s1).isupper()
     assert s1.istitle() == safe_string(s1).istitle()
-    assert s1.isalnum() == safe_string(s1).isalnum()
+    assert s1.isspace() == safe_string(s1).isspace()
+    assert s1.isdecimal() == safe_string(s1).isdecimal()
     assert s1.isdigit() == safe_string(s1).isdigit()
+    assert s1.isnumeric() == safe_string(s1).isnumeric()
+    assert s1.isalpha() == safe_string(s1).isalpha()
+    assert s1.isalnum() == safe_string(s1).isalnum()
+    assert s1.isidentifier() == safe_string(s1).isidentifier()
+    assert s1.isprintable() == safe_string(s1).isprintable()
 
 
 def test_string_to_same_length_string_functions_dont_change_trusted():
@@ -67,6 +75,7 @@ def test_string_to_same_length_string_functions_dont_change_trusted():
 
     assert s.capitalize().trusted == s.trusted
     assert s.upper().trusted == s.trusted
+    assert s.lower().trusted == s.trusted
     assert s.lower().trusted == s.trusted
     assert s.title().trusted == s.trusted
     assert s.swapcase().trusted == s.trusted
