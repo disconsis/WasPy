@@ -331,7 +331,7 @@ class safe_string:
         return self.string.index(subs.string, *args, **kwargs)
 
     def rindex(self, subs, *args, **kwargs):
-        return self.string.index(subs.string, *args, **kwargs)
+        return self.string.rindex(subs.string, *args, **kwargs)
 
     def expandtabs(self, tabsize=8):
         string = ""
