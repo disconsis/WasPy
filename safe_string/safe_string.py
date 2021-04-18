@@ -418,10 +418,13 @@ class safe_string:
         return self.string.endswith(suffix.string, *args, **kwargs)
 
     def __getitem__(self, key):
+        # call __getitem__ on self.string first
+        # to return the appropriate error
+        new_string = self.string[key]
         if isinstance(key, int):
-            return safe_string(self.string[key], trusted=[self.trusted[key]])
+            return safe_string(new_string, trusted=[self.trusted[key]])
         elif isinstance(key, slice):
-            return safe_string(self.string[key], trusted=self.trusted[key])
+            return safe_string(new_string, trusted=self.trusted[key])
         else:
             raise TypeError("Invalid indexing")
 
