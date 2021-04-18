@@ -82,14 +82,8 @@ def test_substring_finding_functions_work_correctly():
     assert (needle1 in haystack) == (safe_string(needle1) in safe_string(haystack))
     assert (needle2 in haystack) == (safe_string(needle2) in safe_string(haystack))
 
-    assert haystack.index(needle1) == safe_string(haystack).index(safe_string(needle1))
-    assert haystack.rindex(needle1) == safe_string(haystack).rindex(
-        safe_string(needle1)
-    )
-    assert haystack.index(needle2) == safe_string(haystack).index(safe_string(needle2))
-    assert haystack.rindex(needle2) == safe_string(haystack).rindex(
-        safe_string(needle2)
-    )
+    assert haystack.index(haystack[4:7]) == safe_string(haystack).index(safe_string(haystack[4:7]))
+    assert haystack.rindex(haystack[4:7]) == safe_string(haystack).rindex(safe_string(haystack[4:7]))
 
     assert haystack.startswith(start) == safe_string(haystack).startswith(
         safe_string(start)
