@@ -80,3 +80,74 @@ def tcheck(string):
 - for query in benign queries:
   - run `has_sqli`
   - if true, flag as *false positive*
+
+
+## Fronts
+- Tests
+  - imp [marked yellow] -> do first
+
+- Automatic str replacements
+  - then: Benchmark on a large open-source project
+
+### Automatic str replacements
+1. source code replacement
+
+change all `"abc"` in code to `safe_string("abc", trusted=True)`
+
+```python
+
+safe_string("ketan ") + safe_string("blah")
+safe_string("my name is ") + input()
+```
+
+Problems:
+
+How to handle new str -> `safe_string` replacements
+```python
+input() + safe_string(" is my name")
+input().format(safe_string("blah"))
+```
+
+possible solution: override some list of functions
+
+2. change CPython interpreter
+
+- allocate `safe_string` instead of str
+- make sure actual str's are allocated inside `safe_string` module
+- prevent recursion
+
+
+3. change python magic functions (don't know which) which allocate str objects
+
+
+
+Problem:
+- need to make sure output functions get actual string
+```python
+print(input())
+print("name")
+db_request()
+http_request()
+```
+
+- make special case for sql query method
+  - call has_sqli function
+
+
+
+```
+
+source.py -----python compiler----> python bytecode
+                                          |
+                                          |
+                                waspy preprocess bytecode
+                                          |
+                                          |
+                                    python bytecode vm
+                                          |
+                                          |
+                                          |
+                                          V
+                                    execute program
+
+```
