@@ -135,3 +135,10 @@ def test_getitem():
         assert isinstance(safe[key], safe_string)
         assert safe[key] == unsafe[key]
         assert safe[key]._trusted == safe._trusted[key]
+
+
+def test_iter():
+    safe = gen_random_safe_string(100)
+    for idx, safe_char in enumerate(safe):
+        assert safe_char == safe[idx]
+        assert safe_char._trusted == safe._trusted[idx]

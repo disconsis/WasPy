@@ -49,7 +49,8 @@ class safe_string(str):
         return safe_string(super().__getitem__(key), trusted=self._trusted[key])
 
     def __iter__(self):
-        raise NotImplementedError()
+        for char, trust_bit in zip(super().__iter__(), self._trusted):
+            yield safe_string(char, trust_bit)
 
     def __add__(self, other):
         raise NotImplementedError()
