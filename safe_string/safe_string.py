@@ -93,7 +93,7 @@ class safe_string(str):
     def rsplit(self, sep=None, maxsplit=-1):
         raise NotImplementedError()
 
-    def join(self, seq):
+    def join(self, iterable):
         raise NotImplementedError()
 
     def partition(self, sep):
