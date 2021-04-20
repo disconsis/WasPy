@@ -30,7 +30,9 @@ class safe_string(str):
         return safe_string(string, trusted=frozenbitarray([True] * len(string)))
 
     def __str__(self):
-        raise NotImplementedError()
+        # sharing should not be a problem
+        # since all attributes are immutable
+        return self
 
     def __repr__(self):
         raise NotImplementedError()
