@@ -106,7 +106,7 @@ def test_substring_finding_functions_work_correctly():
 
 
 def test_substrings_are_returned_correctly():
-    length = 1000
+    length = 100
     string = gen_random_string(length)
     trusted = gen_random_trusted(length)
     safe = safe_string(string, trusted=trusted)
