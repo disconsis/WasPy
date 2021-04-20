@@ -9,11 +9,13 @@ class safe_string(str):
     # Need to overload __new__ to not pass trusted to super().__new__.
     # Use frozenbitarray instead of bitarray since it is immutable,
     # similar to str. This should prevent sharing errors.
-    def __new__(cls, value, trusted: frozenbitarray):
-        self = super().__new__(cls, value)
+    def __new__(cls, value, trusted):
+        return super().__new__(cls, value)
+
+    def __init__(self, _string, trusted: frozenbitarray):
+        super().__init__()
         # keep as a private attribute
         self._trusted = trusted
-        return self
 
     @staticmethod
     def _new_untrusted(string):
