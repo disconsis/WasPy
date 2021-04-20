@@ -1,4 +1,4 @@
-from bitarray import frozenbitarray
+from bitarray import bitarray, frozenbitarray
 
 
 class safe_string(str):
@@ -45,7 +45,57 @@ class safe_string(str):
         return self
 
     def __repr__(self):
-        raise NotImplementedError()
+        """
+        __repr__ override for safe_string objects.
+
+        `str.__repr__` has a complicated escaping logic. It escapes backslashes, special
+        escape characters (\n, \t, ...) but also unicode codepoints outside the printable
+        range.
+        There might be more to it. For now, a slow but safe approach is to use the trusted
+        value of each character as the trusted of its repr, and concat them together.
+
+        Examples:
+          repr("\\") == "'\\\\'"
+          repr("\n") == "'\\n'"
+          repr("\x0c") == "'\\x0c'"
+          repr("\x1c") == "'\\x1c'"
+          repr("\x2c") == "','" == "'\x2c'"
+
+          repr("'") == "'"
+          repr('"') == '"'
+          repr("'\"") == '\'"'
+        """
+
+        repr_string = super().__repr__()
+        if len(repr_string) - len(self) == 2:
+            # nothing has been escaped; only quotes have been added
+            repr_trusted = frozenbitarray([False]) + self._trusted + frozenbitarray([False])
+        else:
+            # some characters have been escaped
+            # we have no way to know which without looping through the string
+
+            repr_trusted = bitarray([False])
+
+            # single quote is only escaped if the repr string
+            # is surrounded with single quotes, but this doesn't
+            # show up if you call repr on it by itself (since it wraps
+            # it in double quotes).
+            single_quote_escaped = (repr_string[0] == "'")
+
+            for char in self:
+                if char == "'" and single_quote_escaped:
+                    len_repr = 2
+                else:
+                    len_repr = len(str.__repr__(char)) - 2
+
+                repr_trusted.extend(char._trusted * len_repr)
+
+            repr_trusted.append(False)
+
+            # freeze to make immutable
+            repr_trusted = frozenbitarray(repr_trusted)
+
+        return safe_string(repr_string, repr_trusted)
 
     def __getitem__(self, key):
         # call str method first to get same behaviour on error

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+import string
 
 
 from safe_string.safe_string import safe_string
@@ -151,3 +151,32 @@ def test_iter():
     for idx, safe_char in enumerate(safe):
         assert safe_char == safe[idx]
         assert safe_char._trusted == frozenbitarray([safe._trusted[idx]])
+
+
+def test_repr_same_length():
+    examples = [
+        "abc",
+        "\\",
+        "\n",
+        b"Ni\xc3\xb10".decode("utf-8"),
+        string.printable,
+        "\x0c",
+        "\x1c",
+        "\x2c",
+        "\xff",
+        "\xf8",
+        "\x7f\x8f\x9f\xff",
+        "\f",
+        "\t",
+        " ",
+        "",
+    ]
+    for unsafe in examples:
+        # safe = gen_random_safe_from_unsafe(unsafe)
+        safe = safe_string(unsafe, frozenbitarray([True, False] * (len(unsafe) // 2) + [True] * (len(unsafe) % 2)))
+        safe_repr = repr(safe)
+        assert len(safe_repr) == len(repr(unsafe))
+        if len(safe_repr) != len(safe_repr._trusted):
+            safe._debug_repr()
+            safe_repr._debug_repr()
+            assert False
