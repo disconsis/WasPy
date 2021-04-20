@@ -147,10 +147,26 @@ class safe_string(str):
         return self.lstrip(chars).rstrip(chars)
 
     def ljust(self, width, fillchar=" "):
-        raise NotImplementedError()
+        string = super().ljust(width, fillchar)
+
+        if isinstance(fillchar, safe_string):
+            fillchar_trust = fillchar._trusted[0]
+        else:
+            fillchar_trust = False
+
+        trusted = self._trusted + max(0, width - len(self)) * frozenbitarray([fillchar_trust])
+        return safe_string(string, trusted)
 
     def rjust(self, width, fillchar=" "):
-        raise NotImplementedError()
+        string = super().rjust(width, fillchar)
+
+        if isinstance(fillchar, safe_string):
+            fillchar_trust = fillchar._trusted[0]
+        else:
+            fillchar_trust = False
+
+        trusted = max(0, width - len(self)) * frozenbitarray([fillchar_trust]) + self._trusted
+        return safe_string(string, trusted)
 
     def center(self, width, fillchar=" "):
         raise NotImplementedError()

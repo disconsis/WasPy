@@ -212,3 +212,29 @@ def test_strip():
     assert safe.rstrip()._trusted == safe._trusted[:-4]
     assert safe.strip() == unsafe.strip()
     assert safe.strip()._trusted == safe._trusted[2:-4]
+
+
+def test_justification():
+    unsafe = gen_random_string(15)
+    safe = gen_random_safe_from_unsafe(unsafe)
+    fillchar_trusted = safe_string._new_trusted("-")
+
+    for width in (10, 15, 20, 25):
+        assert safe.ljust(width) == unsafe.ljust(width)
+        assert safe.ljust(width, fillchar_trusted) == unsafe.ljust(width, "-")
+        assert safe.rjust(width) == unsafe.rjust(width)
+        assert safe.rjust(width, fillchar_trusted) == unsafe.rjust(width, "-")
+
+    for width in (0, 10, 15):
+        assert safe.ljust(width)._trusted == safe._trusted
+        assert safe.ljust(width, fillchar_trusted)._trusted == safe._trusted
+        assert safe.rjust(width)._trusted == safe._trusted
+        assert safe.rjust(width, fillchar_trusted)._trusted == safe._trusted
+
+    for width in (16, 20, 25):
+        false_array = frozenbitarray([False] * (width - 15))
+        true_array = frozenbitarray([True] * (width - 15))
+        assert safe.ljust(width)._trusted == safe._trusted + false_array
+        assert safe.rjust(width)._trusted == false_array + safe._trusted
+        assert safe.ljust(width, fillchar_trusted)._trusted == safe._trusted + true_array
+        assert safe.rjust(width, fillchar_trusted)._trusted == true_array + safe._trusted
