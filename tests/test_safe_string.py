@@ -263,3 +263,35 @@ def test_center():
             for char in safe.center(width, fillchar_safe):
                 # fillchar is unsafe, rest everything is safe
                 assert (char != fillchar_safe) == bool(char._trusted[0])
+
+
+def test_expandtabs():
+    untrusted = safe_string._new_untrusted("x")
+    trusted_tab = safe_string._new_trusted("\t")
+
+    for safe in (
+        untrusted * 5,
+        untrusted * 11 + trusted_tab,
+        trusted_tab + untrusted * 11,
+        trusted_tab + untrusted * 11 + trusted_tab,
+        trusted_tab * 2 + untrusted * 11 + trusted_tab * 4,
+        (
+            untrusted * 10
+            + trusted_tab
+            + untrusted * 20
+            + trusted_tab * 3
+            + untrusted * 4
+        ),
+    ):
+
+        unsafe = safe._to_unsafe_str()
+        for tabsize in (0, 1, 2, 4, 5, 8):
+            assert safe.expandtabs(tabsize) == unsafe.expandtabs(tabsize)
+            assert len(safe.expandtabs(tabsize)) == len(safe.expandtabs(tabsize)._trusted)
+            for char in safe.expandtabs(tabsize):
+                # trusted only if expanded to " " from trusted "\t"
+                if (char == " ") != bool(char._trusted[0]):
+                    print(f"tabsize = {tabsize}")
+                    safe._debug_repr()
+                    safe.expandtabs(tabsize)._debug_repr()
+                    raise
