@@ -105,8 +105,26 @@ class safe_string(str):
     def replace(self, old, new, count=-1):
         raise NotImplementedError()
 
+    def __format__(self, format_spec):
+        raise NotImplementedError()
+
     def format(self, *args, **kwargs):
         raise NotImplementedError()
 
     def format_map(self, *args, **kwargs):
+        raise NotImplementedError()
+
+    def title(self):
+        raise NotImplementedError()
+
+    def capitalize(self):
+        raise NotImplementedError()
+
+    def casefold(self):
+        raise NotImplementedError()
+
+    def upper(self):
+        raise NotImplementedError()
+
+    def lower(self):
         raise NotImplementedError()
