@@ -187,16 +187,37 @@ class safe_string(str):
         raise NotImplementedError()
 
     def title(self):
-        raise NotImplementedError()
+        return safe_string(
+            super().title(),
+            self._trusted
+        )
 
     def capitalize(self):
-        raise NotImplementedError()
+        return safe_string(
+            super().capitalize(),
+            self._trusted
+        )
 
     def casefold(self):
-        raise NotImplementedError()
+        return safe_string(
+            super().casefold(),
+            self._trusted
+        )
 
     def upper(self):
-        raise NotImplementedError()
+        return safe_string(
+            super().upper(),
+            self._trusted
+        )
 
     def lower(self):
-        raise NotImplementedError()
+        return safe_string(
+            super().lower(),
+            self._trusted
+        )
+
+    def swapcase(self):
+        return safe_string(
+            super().swapcase(),
+            self._trusted
+        )
