@@ -242,6 +242,13 @@ def test_lr_justification():
         assert safe.rjust(width, fillchar_trusted)._trusted == true_array + safe._trusted
 
 
+def test_zfill_behaves_same_as_rjust():
+    unsafe = gen_random_string(15)
+    safe = gen_random_safe_from_unsafe(unsafe)
+    for width in range(25):
+        assert safe.zfill(width) == unsafe.zfill(width)
+
+
 def test_center():
     unsafe_odd = "12345"
     unsafe_even = "123456"

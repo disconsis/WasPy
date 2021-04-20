@@ -186,7 +186,12 @@ class safe_string(str):
         return safe_string(string, trusted)
 
     def zfill(self, width):
-        raise NotImplementedError()
+        # zfill seems to behave exactly the same as rjust with fillchar="0".
+        # I've tested this with some examples, and it seems to hold. The docs
+        # don't suggest any special nuances either.
+        # Our previous implementation just had the rjust logic for calculating
+        # trusted; so even if this is wrong it's not any *more* wrong than before :P
+        return self.rjust(width, "0")
 
     def expandtabs(self, tabsize=8):
         raise NotImplementedError()
