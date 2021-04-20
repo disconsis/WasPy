@@ -29,6 +29,14 @@ class safe_string(str):
         """
         return safe_string(string, trusted=frozenbitarray([True] * len(string)))
 
+    def _to_unsafe_str(self):
+        "Convert back to a simple str."
+        return super().__str__()
+
+    def _debug_repr(self):
+        "Debugging: print a representation which shows the trust values of each char."
+        return print(self._to_unsafe_str() + "\n" + self._trusted.to01())
+
     def __str__(self):
         # sharing should not be a problem
         # since all attributes are immutable
