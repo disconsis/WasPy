@@ -38,7 +38,7 @@ class safe_string(str):
         raise NotImplementedError()
 
     def __getitem__(self, key):
-        raise NotImplementedError()
+        return safe_string(super().__getitem__(key), trusted=self._trusted[key])
 
     def __iter__(self):
         raise NotImplementedError()

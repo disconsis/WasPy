@@ -126,3 +126,12 @@ def test_safe_string_format():
         + [False]
         + template._trusted[len("my name is {name} the {0}") :]
     )
+
+
+def test_getitem():
+    unsafe = gen_random_string(100)
+    safe = gen_random_safe_from_unsafe(unsafe)
+    for key in (5, slice(5, 40), slice(45, 40)):
+        assert isinstance(safe[key], safe_string)
+        assert safe[key] == unsafe[key]
+        assert safe[key]._trusted == safe._trusted[key]
