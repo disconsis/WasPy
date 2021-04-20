@@ -1,8 +1,10 @@
-import string
 import sqlparse
 from safe_string import safe_string, dbg_print_safestring
 
-def has_sqli(query: safe_string) -> bool:
+def has_sqli(query):
+    if not isinstance(query, safe_string):
+        return True
+
     start_idx = 0
     for statement in sqlparse.parse(query.string):
         for token in statement.flatten():
