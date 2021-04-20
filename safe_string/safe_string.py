@@ -1,14 +1,33 @@
+from bitarray import frozenbitarray
+
+
 class safe_string(str):
     """
     A string which tracks trust values of each character.
     """
 
-    # need to overload __new__ to not pass trusted to super().__new__
-    def __new__(cls, value, trusted):
+    # Need to overload __new__ to not pass trusted to super().__new__.
+    # Use frozenbitarray instead of bitarray since it is immutable,
+    # similar to str. This should prevent sharing errors.
+    def __new__(cls, value, trusted: frozenbitarray):
         self = super().__new__(cls, value)
         # keep as a private attribute
         self.__trusted = trusted
         return self
+
+    @classmethod
+    def __new_untrusted(string):
+        """
+        Convenience method to create completely untrusted safe_string.
+        """
+        return safe_string(string, trusted=frozenbitarray([False] * len(string)))
+
+    @classmethod
+    def __new_trusted(string):
+        """
+        Convenience method to create completely trusted safe_string.
+        """
+        return safe_string(string, trusted=frozenbitarray([True] * len(string)))
 
     def __str__(self):
         raise NotImplementedError()
