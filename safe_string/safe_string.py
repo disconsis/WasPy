@@ -15,15 +15,15 @@ class safe_string(str):
         self._trusted = trusted
         return self
 
-    @classmethod
-    def __new_untrusted(string):
+    @staticmethod
+    def _new_untrusted(string):
         """
         Convenience method to create completely untrusted safe_string.
         """
         return safe_string(string, trusted=frozenbitarray([False] * len(string)))
 
-    @classmethod
-    def __new_trusted(string):
+    @staticmethod
+    def _new_trusted(string):
         """
         Convenience method to create completely trusted safe_string.
         """
