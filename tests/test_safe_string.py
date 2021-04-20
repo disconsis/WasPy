@@ -180,3 +180,12 @@ def test_repr_same_length():
             safe._debug_repr()
             safe_repr._debug_repr()
             assert False
+
+
+def test_add():
+    for _ in range(10):
+        first = gen_random_safe_string(50)
+        second = gen_random_safe_string(60)
+        sum_ = first + second
+        assert sum_ == first + second
+        assert sum_._trusted == first._trusted + second._trusted

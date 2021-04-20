@@ -115,7 +115,16 @@ class safe_string(str):
             yield safe_string(char, frozenbitarray([trust_bit]))
 
     def __add__(self, other):
-        raise NotImplementedError()
+        # call str method first to get same behaviour on error
+        string = super().__add__(other)
+        if isinstance(other, safe_string):
+            trusted = self._trusted + other._trusted
+            return safe_string(string, trusted)
+        elif isinstance(other, str):
+            trusted = self._trusted + (frozenbitarray([False] * len(other)))
+            return safe_string(string, trusted)
+        else:
+            raise TypeError("argument must be a str or safe_string")
 
     def __mul__(self, num):
         raise NotImplementedError()
