@@ -1,4 +1,15 @@
 class safe_string(str):
+    """
+    A string which tracks trust values of each character.
+    """
+
+    # need to overload __new__ to not pass trusted to super().__new__
+    def __new__(cls, value, trusted):
+        self = super().__new__(cls, value)
+        # keep as a private attribute
+        self.__trusted = trusted
+        return self
+
     def __str__(self):
         raise NotImplementedError()
 
