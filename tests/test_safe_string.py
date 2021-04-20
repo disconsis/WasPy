@@ -216,7 +216,7 @@ def test_strip():
     assert safe.strip()._trusted == safe._trusted[2:-4]
 
 
-def test_justification():
+def test_lr_justification():
     unsafe = gen_random_string(15)
     safe = gen_random_safe_from_unsafe(unsafe)
     fillchar_trusted = safe_string._new_trusted("-")
@@ -240,3 +240,19 @@ def test_justification():
         assert safe.rjust(width)._trusted == false_array + safe._trusted
         assert safe.ljust(width, fillchar_trusted)._trusted == safe._trusted + true_array
         assert safe.rjust(width, fillchar_trusted)._trusted == true_array + safe._trusted
+
+
+def test_center():
+    unsafe_odd = "12345"
+    unsafe_even = "123456"
+    # meant to be untrusted to distinguish from original trusted string
+    fillchar_safe = safe_string._new_untrusted("-")
+
+    for unsafe in (unsafe_odd, unsafe_even):
+        safe = safe_string._new_trusted(unsafe)
+        for width in (0, 1, 5, 6, 7, 10, 11, 12):
+            assert safe.center(width) == unsafe.center(width)
+            assert safe.center(width, fillchar_safe) == unsafe.center(width, fillchar_safe)
+            for char in safe.center(width, fillchar_safe):
+                # fillchar is unsafe, rest everything is safe
+                assert (char != fillchar_safe) == bool(char._trusted[0])

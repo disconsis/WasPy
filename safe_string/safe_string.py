@@ -169,7 +169,21 @@ class safe_string(str):
         return safe_string(string, trusted)
 
     def center(self, width, fillchar=" "):
-        raise NotImplementedError()
+        string = super().center(width, fillchar)
+
+        if isinstance(fillchar, safe_string):
+            fillchar_trust = fillchar._trusted[0]
+        else:
+            fillchar_trust = False
+
+        fillchar_trusted = frozenbitarray([fillchar_trust])
+
+        marg = width - len(self)
+        left_fill = (marg // 2 + (marg & width & 1)) * fillchar_trusted
+        right_fill = (marg - len(left_fill)) * fillchar_trusted
+        trusted = left_fill + self._trusted + right_fill
+
+        return safe_string(string, trusted)
 
     def zfill(self, width):
         raise NotImplementedError()
