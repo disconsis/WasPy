@@ -48,11 +48,21 @@ class safe_string(str):
         raise NotImplementedError()
 
     def __getitem__(self, key):
-        return safe_string(super().__getitem__(key), trusted=self._trusted[key])
+        # call str method first to get same behaviour on error
+        new_string = super().__getitem__(key)
+
+        if isinstance(key, int):
+            new_trusted = self._trusted[key:key + 1]
+        elif isinstance(key, slice):
+            new_trusted = self._trusted[key]
+        else:
+            raise TypeError("indices must be integers or slices")
+
+        return safe_string(new_string, new_trusted)
 
     def __iter__(self):
         for char, trust_bit in zip(super().__iter__(), self._trusted):
-            yield safe_string(char, trust_bit)
+            yield safe_string(char, frozenbitarray([trust_bit]))
 
     def __add__(self, other):
         raise NotImplementedError()
