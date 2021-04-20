@@ -4,6 +4,7 @@
 from safe_string.safe_string import safe_string
 from string import printable
 import random
+from bitarray import frozenbitarray
 
 
 def gen_random_string(length):
@@ -11,7 +12,7 @@ def gen_random_string(length):
 
 
 def gen_random_trusted(length):
-    return random.choices([True, False], k=length)
+    return frozenbitarray(random.choices([True, False], k=length))
 
 
 def gen_random_safe_string(length):
@@ -28,19 +29,13 @@ def test_can_create_new_safe_strings():
         safe_string(unsafe)
 
 
-def test_new_safe_strings_are_untrusted_by_default():
-    unsafe = gen_random_string(100)
-    safe = safe_string(unsafe)
-    assert not any(safe.trusted)
-
-
 def test_default_trusted_is_same_length_as_string():
     safe = gen_random_safe_string(100)
-    assert len(safe.trusted) == len(safe.string)
+    assert len(safe._trusted) == len(safe.string)
 
 
 def test_can_initialize_with_custom_trusted():
-    safe_string(printable, trusted=[True] * len(printable))
+    safe_string(printable, trusted=frozenbitarray([True] * len(printable)))
 
 
 def test_safe_strings_return_correct_values_for_string_to_non_string_functions():
@@ -73,12 +68,12 @@ def test_safe_strings_return_correct_values_for_string_to_non_string_functions()
 def test_string_to_same_length_string_functions_dont_change_trusted():
     s = gen_random_safe_string(100)
 
-    assert s.capitalize().trusted == s.trusted
-    assert s.upper().trusted == s.trusted
-    assert s.lower().trusted == s.trusted
-    assert s.lower().trusted == s.trusted
-    assert s.title().trusted == s.trusted
-    assert s.swapcase().trusted == s.trusted
+    assert s.capitalize()._trusted == s._trusted
+    assert s.upper()._trusted == s._trusted
+    assert s.lower()._trusted == s._trusted
+    assert s.lower()._trusted == s._trusted
+    assert s.title()._trusted == s._trusted
+    assert s.swapcase()._trusted == s._trusted
 
 
 def test_substring_finding_functions_work_correctly():
@@ -116,7 +111,7 @@ def test_substrings_are_returned_correctly():
         for j in range(-(length + 5), (length + 5)):
             sub = safe[i:j]
             assert sub.string == string[i:j]
-            assert sub.trusted == trusted[i:j]
+            assert sub._trusted == trusted[i:j]
 
 
 def test_safe_string_format():
@@ -124,10 +119,10 @@ def test_safe_string_format():
     name = gen_random_safe_from_unsafe("ramses")
     formatted = template.format(2, name=name)
     assert formatted.string == "my name is ramses the 2nd"
-    assert formatted.trusted == (
-        template.trusted[: len("my name is ")]
-        + name.trusted
-        + template.trusted[len("my name is {name}") : len("my name is {name} the ")]
+    assert formatted._trusted == (
+        template._trusted[: len("my name is ")]
+        + name._trusted
+        + template._trusted[len("my name is {name}") : len("my name is {name} the ")]
         + [False]
-        + template.trusted[len("my name is {name} the {0}") :]
+        + template._trusted[len("my name is {name} the {0}") :]
     )

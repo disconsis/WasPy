@@ -12,7 +12,7 @@ class safe_string(str):
     def __new__(cls, value, trusted: frozenbitarray):
         self = super().__new__(cls, value)
         # keep as a private attribute
-        self.__trusted = trusted
+        self._trusted = trusted
         return self
 
     @classmethod
