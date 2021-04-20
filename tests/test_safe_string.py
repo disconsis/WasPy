@@ -189,3 +189,15 @@ def test_add():
         sum_ = first + second
         assert sum_ == first + second
         assert sum_._trusted == first._trusted + second._trusted
+
+
+def test_mul_and_rmul():
+    for _ in range(10):
+        orig = gen_random_safe_string(50)
+        n = random.randint(5, 10)
+        mult_l = orig * n
+        mult_r = n * orig
+        assert orig._to_unsafe_str() * n == mult_l._to_unsafe_str()
+        assert orig._trusted * n == mult_l._trusted
+        assert n * orig._to_unsafe_str() == mult_r._to_unsafe_str()
+        assert n * orig._trusted == mult_r._trusted

@@ -127,10 +127,13 @@ class safe_string(str):
             raise TypeError("argument must be a str or safe_string")
 
     def __mul__(self, num):
-        raise NotImplementedError()
+        return safe_string(
+            super().__mul__(num),
+            self._trusted * num
+        )
 
     def __rmul__(self, num):
-        raise NotImplementedError()
+        return self.__mul__(num)
 
     def lstrip(self, chars=None):
         raise NotImplementedError()
