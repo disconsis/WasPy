@@ -132,16 +132,22 @@ def test_safe_string_format():
 
 
 def test_getitem():
+    def make_array(item):
+        if isinstance(item, frozenbitarray):
+            return item
+        else:
+            return frozenbitarray([item])
+
     unsafe = gen_random_string(100)
     safe = gen_random_safe_from_unsafe(unsafe)
     for key in (5, slice(5, 40), slice(45, 40)):
         assert isinstance(safe[key], safe_string)
         assert safe[key] == unsafe[key]
-        assert safe[key]._trusted == safe._trusted[key]
+        assert safe[key]._trusted == make_array(safe._trusted[key])
 
 
 def test_iter():
     safe = gen_random_safe_string(100)
     for idx, safe_char in enumerate(safe):
         assert safe_char == safe[idx]
-        assert safe_char._trusted == safe._trusted[idx]
+        assert safe_char._trusted == frozenbitarray([safe._trusted[idx]])
