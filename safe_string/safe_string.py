@@ -136,10 +136,15 @@ class safe_string(str):
         return self.__mul__(num)
 
     def lstrip(self, chars=None):
-        raise NotImplementedError()
+        string = super().lstrip(chars)
+        return safe_string(string, self._trusted[-len(string):])
 
     def rstrip(self, chars=None):
-        raise NotImplementedError()
+        string = super().rstrip(chars)
+        return safe_string(string, self._trusted[:len(string)])
+
+    def strip(self, chars=None):
+        return self.lstrip(chars).rstrip(chars)
 
     def ljust(self, width, fillchar=" "):
         raise NotImplementedError()

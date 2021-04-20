@@ -201,3 +201,14 @@ def test_mul_and_rmul():
         assert orig._trusted * n == mult_l._trusted
         assert n * orig._to_unsafe_str() == mult_r._to_unsafe_str()
         assert n * orig._trusted == mult_r._trusted
+
+
+def test_strip():
+    unsafe = "\n blah\nfoo\t\r\f foo \r \t"
+    safe = gen_random_safe_from_unsafe(unsafe)
+    assert safe.lstrip() == unsafe.lstrip()
+    assert safe.lstrip()._trusted == safe._trusted[2:]
+    assert safe.rstrip() == unsafe.rstrip()
+    assert safe.rstrip()._trusted == safe._trusted[:-4]
+    assert safe.strip() == unsafe.strip()
+    assert safe.strip()._trusted == safe._trusted[2:-4]
