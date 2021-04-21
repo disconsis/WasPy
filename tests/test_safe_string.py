@@ -338,9 +338,10 @@ def test_expandtabs():
 
         unsafe = safe._to_unsafe_str()
         for tabsize in (0, 1, 2, 4, 5, 8):
-            assert safe.expandtabs(tabsize) == unsafe.expandtabs(tabsize)
-            assert len(safe.expandtabs(tabsize)) == len(safe.expandtabs(tabsize)._trusted)
-            for char in safe.expandtabs(tabsize):
+            safe_expanded = safe.expandtabs(tabsize)
+            assert safe_expanded == unsafe.expandtabs(tabsize)
+            assert len(safe_expanded) == len(safe_expanded._trusted)
+            for char in safe_expanded:
                 # trusted only if expanded to " " from trusted "\t"
                 if (char == " ") != bool(char._trusted[0]):
                     print(f"tabsize = {tabsize}")
