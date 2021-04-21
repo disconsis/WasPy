@@ -268,10 +268,18 @@ def test_center():
 def test_split():
     unsafe = "011110011010101011101010"
     safe = safe_string(unsafe, frozenbitarray(unsafe))
-    for chunk in safe.split("0"):
-        assert chunk == "1" * len(chunk)
-        assert len(chunk) == len(chunk._trusted)
-        assert chunk._trusted.all()
+    for maxsplit in range(10):
+        for chunk, chunk_unsafe in zip(safe.split("0", maxsplit), unsafe.split("0", maxsplit)):
+            assert chunk == chunk_unsafe
+            assert len(chunk) == len(chunk._trusted)
+            for char in chunk:
+                assert (char == "1") == bool(char._trusted[0])
+
+        for chunk, chunk_unsafe in zip(safe.rsplit("0", maxsplit), unsafe.rsplit("0", maxsplit)):
+            assert chunk == chunk_unsafe
+            assert len(chunk) == len(chunk._trusted)
+            for char in chunk:
+                assert (char == "1") == bool(char._trusted[0])
 
     unsafe = "   11\t222 \n\r333  \n"
     trusted = frozenbitarray([
@@ -279,20 +287,34 @@ def test_split():
         for char in unsafe
     ])
     safe = safe_string(unsafe, trusted)
-    for chunk, chunk_unsafe in zip(safe.split(), unsafe.split()):
-        assert chunk == chunk_unsafe
-        assert chunk == chunk[0] * len(chunk)
-        assert len(chunk) == len(chunk._trusted)
-        assert chunk._trusted.all()
+    for maxsplit in range(5):
+        for chunk, chunk_unsafe in zip(safe.split(None, maxsplit), unsafe.split(None, maxsplit)):
+            assert chunk == chunk_unsafe
+            assert len(chunk) == len(chunk._trusted)
+            for char in chunk:
+                assert not char.isspace() == bool(char._trusted[0])
+
+        for chunk, chunk_unsafe in zip(safe.rsplit(None, maxsplit), unsafe.rsplit(None, maxsplit)):
+            assert chunk == chunk_unsafe
+            assert len(chunk) == len(chunk._trusted)
+            for i, char in enumerate(chunk):
+                assert not char.isspace() == bool(char._trusted[0])
 
     for _ in range(10):
         unsafe = gen_random_string(50)
+        maxsplit = random.randint(5, 10)
         safe = gen_random_safe_from_unsafe(unsafe)
-        assert safe.split() == unsafe.split()
-        assert safe.split(unsafe[:2]) == unsafe.split(unsafe[:2])
-        assert safe.split(safe[:2]) == unsafe.split(safe[:2])
-        assert safe.split(unsafe[-2:]) == unsafe.split(unsafe[-2:])
-        assert safe.split(safe[-2:]) == unsafe.split(safe[-2:])
+        assert safe.split(None, maxsplit) == unsafe.split(None, maxsplit)
+        assert safe.split(unsafe[:2], maxsplit) == unsafe.split(unsafe[:2], maxsplit)
+        assert safe.split(safe[:2], maxsplit) == unsafe.split(safe[:2], maxsplit)
+        assert safe.split(unsafe[-2:], maxsplit) == unsafe.split(unsafe[-2:], maxsplit)
+        assert safe.split(safe[-2:], maxsplit) == unsafe.split(safe[-2:], maxsplit)
+
+        assert safe.rsplit(None, maxsplit) == unsafe.rsplit(None, maxsplit)
+        assert safe.rsplit(unsafe[:2], maxsplit) == unsafe.rsplit(unsafe[:2], maxsplit)
+        assert safe.rsplit(safe[:2], maxsplit) == unsafe.rsplit(safe[:2], maxsplit)
+        assert safe.rsplit(unsafe[-2:], maxsplit) == unsafe.rsplit(unsafe[-2:], maxsplit)
+        assert safe.rsplit(safe[-2:], maxsplit) == unsafe.rsplit(safe[-2:], maxsplit)
 
 
 def test_expandtabs():
