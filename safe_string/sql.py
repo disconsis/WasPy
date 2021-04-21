@@ -1,19 +1,19 @@
 import sqlparse
-from safe_string import safe_string, dbg_print_safestring
+from safe_string import safe_string #, dbg_print_safestring
 
 def has_sqli(query):
     if not isinstance(query, safe_string):
         return True
 
     start_idx = 0
-    for statement in sqlparse.parse(query.string):
+    for statement in sqlparse.parse(query):
         for token in statement.flatten():
             end_idx = start_idx + len(token.value) # non-inclusive
             if token.ttype not in sqlparse.tokens.Literal and \
                     token.ttype not in sqlparse.tokens.Whitespace:
                 # all chars should be trusted
                 for char_idx in range(start_idx, end_idx):
-                    if not query.trusted[char_idx]:
+                    if not query._trusted[char_idx]:
                         print("failed at token", str(token))
                         return True
 
@@ -77,10 +77,11 @@ if __name__ == "__main__":
                 "1'or'1'='1",
                 "fake@ema'or'il.nl'='il.nl",
         ]:
-            user_input_sf = safe_string(user_input)
-            query = template_sf.replace(safe_string("{}"), user_input_sf)
+            user_input_sf = safe_string._new_untrusted(user_input)
+            query = template_sf.replace(safe_string._new_untrusted("{}"),
+                                        user_input_sf)
             print('-----------------------------')
-            dbg_print_safestring(query)
+            # dbg_print_safestring(query)
             print(has_sqli(query))
             print('-----------------------------')
             input()
