@@ -200,7 +200,27 @@ class safe_string(str):
         raise NotImplementedError()
 
     def split(self, sep=None, maxsplit=-1):
-        raise NotImplementedError()
+        str_splits = super().split(sep, maxsplit)
+
+        result = []
+        start_idx = 0
+        if sep is None:
+            while start_idx < len(self) \
+                  and str.isspace(str.__getitem__(self, start_idx)):
+                start_idx += 1
+
+        for elem in str_splits:
+            elem_trusted = self._trusted[start_idx:start_idx + len(elem)]
+            result.append(safe_string(elem, elem_trusted))
+
+            start_idx += len(elem)
+            if sep is None:
+                while start_idx < len(self) \
+                        and str.isspace(str.__getitem__(self, start_idx)):
+                    start_idx += 1
+            else:
+                start_idx += len(sep)
+        return result
 
     def rsplit(self, sep=None, maxsplit=-1):
         raise NotImplementedError()

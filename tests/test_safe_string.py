@@ -265,6 +265,36 @@ def test_center():
                 assert (char != fillchar_safe) == bool(char._trusted[0])
 
 
+def test_split():
+    unsafe = "011110011010101011101010"
+    safe = safe_string(unsafe, frozenbitarray(unsafe))
+    for chunk in safe.split("0"):
+        assert chunk == "1" * len(chunk)
+        assert len(chunk) == len(chunk._trusted)
+        assert chunk._trusted.all()
+
+    unsafe = "   11\t222 \n\r333  \n"
+    trusted = frozenbitarray([
+        not char.isspace()
+        for char in unsafe
+    ])
+    safe = safe_string(unsafe, trusted)
+    for chunk, chunk_unsafe in zip(safe.split(), unsafe.split()):
+        assert chunk == chunk_unsafe
+        assert chunk == chunk[0] * len(chunk)
+        assert len(chunk) == len(chunk._trusted)
+        assert chunk._trusted.all()
+
+    for _ in range(10):
+        unsafe = gen_random_string(50)
+        safe = gen_random_safe_from_unsafe(unsafe)
+        assert safe.split() == unsafe.split()
+        assert safe.split(unsafe[:2]) == unsafe.split(unsafe[:2])
+        assert safe.split(safe[:2]) == unsafe.split(safe[:2])
+        assert safe.split(unsafe[-2:]) == unsafe.split(unsafe[-2:])
+        assert safe.split(safe[-2:]) == unsafe.split(safe[-2:])
+
+
 def test_expandtabs():
     untrusted = safe_string._new_untrusted("x")
     trusted_tab = safe_string._new_trusted("\t")
