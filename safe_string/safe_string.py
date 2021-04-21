@@ -66,6 +66,9 @@ class safe_string(str):
           repr("'\"") == '\'"'
         """
 
+        # XXX uncomment for debugging
+        # return "\n" + repr(self._to_unsafe_str()) + "\n" + repr(self._trusted.to01())
+
         repr_string = super().__repr__()
         if len(repr_string) - len(self) == 2:
             # nothing has been escaped; only quotes have been added
@@ -321,6 +324,7 @@ class safe_string(str):
     def replace(self, old, new, count=-1):
         raise NotImplementedError()
 
+    # XXX comment for debugging
     def __format__(self, format_spec):
         raise NotImplementedError()
 
