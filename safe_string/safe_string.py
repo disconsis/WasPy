@@ -203,6 +203,9 @@ class safe_string(str):
         str_splits = super().split(sep, maxsplit)
 
         result = []
+        # we start counting from the start because irrespective of
+        # the value of `maxsplit`, if sep=None and the string starts with
+        # whitespace, then the whitespace is removed from the start
         start_idx = 0
         if sep is None:
             while start_idx < len(self) \
@@ -223,7 +226,32 @@ class safe_string(str):
         return result
 
     def rsplit(self, sep=None, maxsplit=-1):
-        raise NotImplementedError()
+        str_splits = super().rsplit(sep, maxsplit)
+
+        result = []
+        # we start counting from the end because irrespective of
+        # the value of `maxsplit`, if sep=None and the string ends with
+        # whitespace, then the whitespace is removed from the end
+        end_idx = len(self) - 1
+        if sep is None:
+            while end_idx >= 0 \
+                  and str.isspace(str.__getitem__(self, end_idx)):
+                end_idx -= 1
+
+        for elem in reversed(str_splits):
+            elem_trusted = self._trusted[end_idx - len(elem) + 1:end_idx + 1]
+            result.append(safe_string(elem, elem_trusted))
+
+            end_idx -= len(elem)
+            if sep is None:
+                while end_idx >= 0 \
+                        and str.isspace(str.__getitem__(self, end_idx)):
+                    end_idx -= 1
+            else:
+                end_idx -= len(sep)
+
+        result.reverse()
+        return result
 
     def join(self, iterable):
         raise NotImplementedError()
