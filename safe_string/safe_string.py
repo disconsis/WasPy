@@ -193,8 +193,63 @@ class safe_string(str):
         # trusted; so even if this is wrong it's not any *more* wrong than before :P
         return self.rjust(width, "0")
 
+    @staticmethod
+    def _tabindent(token, tabsize):
+        """
+        Calculates distance behind the token to the next tabstop.
+        Taken almost verbatim from pypy3.6.
+        """
+
+        if tabsize <= 0:
+            return 0
+        distance = tabsize
+        if token:
+            distance = 0
+            offset = len(token)
+
+            while 1:
+                if token[offset-1] == "\n" or token[offset-1] == "\r":
+                    break
+                distance += 1
+                offset -= 1
+                if offset == 0:
+                    break
+
+            # the same like distance = len(token) - (offset + 1)
+            distance = (tabsize - distance) % tabsize
+            if distance == 0:
+                distance = tabsize
+
+        return distance
+
     def expandtabs(self, tabsize=8):
-        raise NotImplementedError()
+        """
+        Override for expandtabs. This function is a lot more complicated than
+        our initial assumption - we thought it would just expand each "\t" to
+        tabsize " " characters. This turns out to be completely false.
+        The function does a much more useful job of aligning the segment following
+        a "\t" to the next tabstop. The calculation for this is somewhat nuanced,
+        and is mostly derived from pypy3.6's implementation.
+        """
+        if not self:
+            return self
+
+        string = super().expandtabs(tabsize)
+        splitted = self.split("\t")
+        # keep track of idx to get trust value of \t
+        oldtoken = splitted.pop(0)
+        final_trusted = bitarray(oldtoken._trusted)
+        start_idx = len(final_trusted)
+        for token in splitted:
+            dist = self._tabindent(oldtoken, tabsize)
+            final_trusted.extend(self._trusted[start_idx:start_idx + 1] * dist)
+            final_trusted.extend(token._trusted)
+            start_idx += dist + len(token)
+            oldtoken = token
+
+        final_trusted = frozenbitarray(final_trusted)
+
+        return safe_string(string, final_trusted)
 
     def splitlines(self, keepends=False):
         raise NotImplementedError()
