@@ -69,6 +69,7 @@ class safe_string(str):
         repr_string = super().__repr__()
         if len(repr_string) - len(self) == 2:
             # nothing has been escaped; only quotes have been added
+            # TODO: should these quotes be trusted? since this is performed by the developer
             repr_trusted = frozenbitarray([False]) + self._trusted + frozenbitarray([False])
         else:
             # some characters have been escaped
