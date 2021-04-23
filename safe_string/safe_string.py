@@ -12,6 +12,7 @@ class safe_string(str):
     def __new__(cls, value, trusted):
         return super().__new__(cls, value)
 
+    # TODO: Add raise error if trusted and string are of different lengths
     def __init__(self, _string, trusted: frozenbitarray):
         super().__init__()
         # keep as a private attribute
