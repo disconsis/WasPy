@@ -9,6 +9,7 @@ class safe_string(str):
     # Need to overload __new__ to not pass trusted to super().__new__.
     # Use frozenbitarray instead of bitarray since it is immutable,
     # similar to str. This should prevent sharing errors.
+    # TODO: have a default trusted generator
     def __new__(cls, value, trusted):
         return super().__new__(cls, value)
 
@@ -323,7 +324,23 @@ class safe_string(str):
         raise NotImplementedError()
 
     def replace(self, old, new, count=-1):
-        raise NotImplementedError()
+        count = super().count(old) if count == -1 else min(count, super().count(old))
+        result_string = super().replace(old, new, count)
+        result_trusted = bitarray()
+        start_idx = 0
+        while count > 0:
+            idx = self.find(old, start_idx)
+            if idx == -1:
+                break
+            else:
+                result_trusted.extend(self._trusted[start_idx:idx])
+                result_trusted.extend(new._trusted)
+                start_idx = idx + len(old)
+                count -= 1
+
+        result_trusted.extend(self._trusted[start_idx:])
+
+        return safe_string(result_string, frozenbitarray(result_trusted))
 
     # XXX comment for debugging
     def __format__(self, format_spec):

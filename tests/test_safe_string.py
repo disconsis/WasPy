@@ -198,6 +198,45 @@ def test_add():
         assert sum_ == first + second
         assert sum_._trusted == first._trusted + second._trusted
 
+def test_replace():
+    unsafe = "abABabAB"
+    unsafe_old = "AB"
+    unsafe_new = "ab"
+
+    safe = safe_string(unsafe, trusted=frozenbitarray([True, True, False, False, True, True, False, False]))
+    old_str = safe_string(unsafe_old, frozenbitarray([False]*2))
+    new_str = safe_string(unsafe_new, trusted=frozenbitarray([True]*2))
+
+    assert unsafe.replace(unsafe_old, unsafe_new) == safe.replace(old_str, new_str)
+    assert safe.replace(old_str, new_str)._trusted == frozenbitarray([True]*8)
+    assert unsafe.replace(unsafe_old, unsafe_new, 1) == safe.replace(old_str, new_str, 1)
+    assert safe.replace(old_str, new_str, 1)._trusted == frozenbitarray([True, True, True, True, True, True, False, False])
+
+def test_count():
+    unsafe = "abABabAB"
+    unsafe_old_1 = "AB"
+    unsafe_old_2 = "cd"
+
+    safe = safe_string(unsafe, trusted=frozenbitarray([True, True, False, False, True, True, False, False]))
+    old_str_1 = safe_string(unsafe_old_1, frozenbitarray([False]*2))
+    old_str_2 = safe_string(unsafe_old_2, frozenbitarray([False]*2))
+
+    assert safe.count(old_str_1) == unsafe.count(unsafe_old_1)
+    assert safe.count(old_str_2) == unsafe.count(unsafe_old_2)
+
+def test_find():
+    unsafe = "abABabAB"
+    unsafe_old_1 = "AB"
+    unsafe_old_2 = "cd"
+
+    safe = safe_string(unsafe, trusted=frozenbitarray([True, True, False, False, True, True, False, False]))
+    old_str_1 = safe_string(unsafe_old_1, frozenbitarray([False]*2))
+    old_str_2 = safe_string(unsafe_old_2, frozenbitarray([False]*2))
+
+    assert safe.find(old_str_1) == unsafe.find(unsafe_old_1)
+    assert safe.find(old_str_2) == unsafe.find(unsafe_old_2)
+    assert safe.rfind(old_str_1) == unsafe.rfind(unsafe_old_1)
+    assert safe.rfind(old_str_2) == unsafe.rfind(unsafe_old_2)
 
 def test_mul_and_rmul():
     for _ in range(10):
