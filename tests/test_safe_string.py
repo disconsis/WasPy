@@ -214,29 +214,29 @@ def test_replace():
 
 def test_count():
     unsafe = "abABabAB"
-    unsafe_old_1 = "AB"
-    unsafe_old_2 = "cd"
+    unsafe_old1 = "AB"
+    unsafe_old2 = "cd"
 
     safe = safe_string(unsafe, trusted=frozenbitarray([True, True, False, False, True, True, False, False]))
-    old_str_1 = safe_string(unsafe_old_1, frozenbitarray([False]*2))
-    old_str_2 = safe_string(unsafe_old_2, frozenbitarray([False]*2))
+    old_str1 = safe_string(unsafe_old1, frozenbitarray([False]*2))
+    old_str2 = safe_string(unsafe_old2, frozenbitarray([False]*2))
 
-    assert safe.count(old_str_1) == unsafe.count(unsafe_old_1)
-    assert safe.count(old_str_2) == unsafe.count(unsafe_old_2)
+    assert safe.count(old_str1) == unsafe.count(unsafe_old1)
+    assert safe.count(old_str2) == unsafe.count(unsafe_old2)
 
 def test_find():
     unsafe = "abABabAB"
-    unsafe_old_1 = "AB"
-    unsafe_old_2 = "cd"
+    unsafe_old1 = "AB"
+    unsafe_old2 = "cd"
 
     safe = safe_string(unsafe, trusted=frozenbitarray([True, True, False, False, True, True, False, False]))
-    old_str_1 = safe_string(unsafe_old_1, frozenbitarray([False]*2))
-    old_str_2 = safe_string(unsafe_old_2, frozenbitarray([False]*2))
+    old_str1 = safe_string(unsafe_old1, frozenbitarray([False]*2))
+    old_str2 = safe_string(unsafe_old2, frozenbitarray([False]*2))
 
-    assert safe.find(old_str_1) == unsafe.find(unsafe_old_1)
-    assert safe.find(old_str_2) == unsafe.find(unsafe_old_2)
-    assert safe.rfind(old_str_1) == unsafe.rfind(unsafe_old_1)
-    assert safe.rfind(old_str_2) == unsafe.rfind(unsafe_old_2)
+    assert safe.find(old_str1) == unsafe.find(unsafe_old1)
+    assert safe.find(old_str2) == unsafe.find(unsafe_old2)
+    assert safe.rfind(old_str1) == unsafe.rfind(unsafe_old1)
+    assert safe.rfind(old_str2) == unsafe.rfind(unsafe_old2)
 
 def test_mul_and_rmul():
     for _ in range(10):
@@ -309,6 +309,54 @@ def test_center():
                 # fillchar is unsafe, rest everything is safe
                 assert (char != fillchar_safe) == bool(char._trusted[0])
 
+def test_partition():
+    #Test-1
+    u1 = gen_random_string(18)
+    u_sep1 = u1[2:4]
+    s1 = gen_random_safe_from_unsafe(u1)
+    s_sep1 = s1[2:4]
+    assert s1.partition(s_sep1) == u1.partition(u_sep1)
+    assert s1.rpartition(s_sep1) == u1.rpartition(u_sep1)
+
+    #Test-2
+    u2 = "abab"
+    u_sep2 = "xy"
+    s2 = gen_random_safe_from_unsafe(u2)
+    s_sep2 = gen_random_safe_from_unsafe(u_sep2)
+    (before, sep, after) = u2.partition(u_sep2)
+    assert s2.partition(s_sep2) == u2.partition(u_sep2)
+    assert before == u2
+    assert sep == safe_string("", frozenbitarray())
+    assert after == safe_string("", frozenbitarray())
+    (before, sep, after) = u2.rpartition(u_sep2)
+    assert s2.rpartition(s_sep2) == u2.rpartition(u_sep2)
+    assert before == safe_string("", frozenbitarray())
+    assert sep == safe_string("", frozenbitarray())
+    assert after == u2
+
+    #Test-3
+    u_sep3 = "ababa"
+    s_sep3 = gen_random_safe_from_unsafe(u_sep3)
+    (before, sep, after) = u2.partition(u_sep3)
+    assert s2.partition(s_sep3) == u2.partition(u_sep3)
+    assert before == u2
+    assert sep == safe_string("", frozenbitarray())
+    assert after == safe_string("", frozenbitarray())
+    (before, sep, after) = u2.rpartition(u_sep3)
+    assert s2.rpartition(s_sep3) == u2.rpartition(u_sep3)
+    assert before == safe_string("", frozenbitarray())
+    assert sep == safe_string("", frozenbitarray())
+    assert after == u2
+
+    #Test-4
+    u4 = "ababab"
+    u_sep4 = "ab"
+    s4 = gen_random_safe_from_unsafe(u4)
+    s_sep4 = gen_random_safe_from_unsafe(u_sep4)
+    (before, sep, after) = u4.partition(u_sep4)
+    assert s4.partition(s_sep4) == u4.partition(u_sep4)
+    (before, sep, after) = u4.rpartition(u_sep4)
+    assert s4.rpartition(s_sep4) == u4.rpartition(u_sep4)
 
 def test_split():
     unsafe = "011110011010101011101010"

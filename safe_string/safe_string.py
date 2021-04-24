@@ -318,10 +318,26 @@ class safe_string(str):
         raise NotImplementedError()
 
     def partition(self, sep):
-        raise NotImplementedError()
+        (before, sep_part, after) = super().partition(sep)
+        before_trusted = self._trusted[:len(before)]
+        sep_trusted = self._trusted[len(before): len(before) + len(sep_part)]
+        after_trusted = self._trusted[len(before) + len(sep_part):]
+        return (
+            safe_string(before, trusted=before_trusted),
+            safe_string(sep_part, trusted=sep_trusted),
+            safe_string(after, after_trusted)
+        )
 
     def rpartition(self, sep):
-        raise NotImplementedError()
+        (before, sep_part, after) = super().rpartition(sep)
+        before_trusted = self._trusted[:len(before)]
+        sep_trusted = self._trusted[len(before): len(before) + len(sep_part)]
+        after_trusted = self._trusted[len(before) + len(sep_part):]
+        return (
+            safe_string(before, trusted=before_trusted),
+            safe_string(sep_part, trusted=sep_trusted),
+            safe_string(after, after_trusted)
+        )
 
     def replace(self, old, new, count=-1):
         count = super().count(old) if count == -1 else min(count, super().count(old))
