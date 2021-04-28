@@ -409,7 +409,7 @@ def test_split():
         assert safe.rsplit(unsafe[-2:], maxsplit) == unsafe.rsplit(unsafe[-2:], maxsplit)
         assert safe.rsplit(safe[-2:], maxsplit) == unsafe.rsplit(safe[-2:], maxsplit)
 
-@pytest.mark.skip
+
 def test_expandtabs():
     untrusted = safe_string._new_untrusted("x")
     trusted_tab = safe_string._new_trusted("\t")
@@ -436,8 +436,4 @@ def test_expandtabs():
             assert len(safe_expanded) == len(safe_expanded._trusted)
             for char in safe_expanded:
                 # trusted only if expanded to " " from trusted "\t"
-                if (char == " ") != bool(char._trusted[0]):
-                    print(f"tabsize = {tabsize}")
-                    safe._debug_repr()
-                    safe.expandtabs(tabsize)._debug_repr()
-                    raise
+                assert (char == " ") == bool(char._trusted[0])

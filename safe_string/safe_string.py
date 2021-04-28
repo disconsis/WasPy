@@ -250,7 +250,7 @@ class safe_string(str):
             dist = self._tabindent(oldtoken, tabsize)
             final_trusted.extend(self._trusted[start_idx:start_idx + 1] * dist)
             final_trusted.extend(token._trusted)
-            start_idx += dist + len(token)
+            start_idx += 1 + len(token)
             oldtoken = token
 
         final_trusted = frozenbitarray(final_trusted)
