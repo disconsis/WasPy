@@ -4,8 +4,9 @@ import string
 from safe_string.safe_string import safe_string
 from string import printable
 import random
-from bitarray import frozenbitarray
+from bitarray import bitarray, frozenbitarray
 import pytest
+import types
 
 
 def gen_random_string(length):
@@ -286,7 +287,7 @@ def test_lr_justification():
         assert safe.ljust(width, fillchar_trusted)._trusted == safe._trusted + true_array
         assert safe.rjust(width, fillchar_trusted)._trusted == true_array + safe._trusted
 
-
+@pytest.mark.skip
 def test_zfill_behaves_same_as_rjust():
     unsafe = gen_random_string(15)
     safe = gen_random_safe_from_unsafe(unsafe)
@@ -436,4 +437,92 @@ def test_expandtabs():
             assert len(safe_expanded) == len(safe_expanded._trusted)
             for char in safe_expanded:
                 # trusted only if expanded to " " from trusted "\t"
-                assert (char == " ") == bool(char._trusted[0])
+                if (char == " ") != bool(char._trusted[0]):
+                    print(f"tabsize = {tabsize}")
+                    safe._debug_repr()
+                    safe.expandtabs(tabsize)._debug_repr()
+                    raise
+
+def test_join():
+    # TODO: String test is skipped for now, check if necessary
+
+    num_items = 5
+    max_length = 10 
+
+    def get_safe_iterable(string_list, trusted_list):
+        for i in range(len(string_list)):
+            yield safe_string(string_list[i], trusted=trusted_list[i])
+
+    def get_unsafe_iterable(string_list):
+        for i in range(len(string_list)):
+            yield string_list[i]
+
+    def gen_len_random_strings(num_items, max_length):
+        str_list = []
+        for i in range(random.randint(0, num_items)):
+            length = random.randint(0, max_length)
+            unsafe = gen_random_string(length)
+            str_list.append(unsafe)
+        return str_list
+
+    join_list = ['']
+    # TODO: Test for join using [',', '\n', 'abcd', '\t']
+
+    for sep in join_list:
+        print(f"===== SEP : {sep} =====")
+        strings_list = [gen_len_random_strings(num_items, max_length) for i in range(num_items)]
+        trusted_list = [[gen_random_trusted(len(string)) for string in string_list] for string_list in strings_list]
+
+        unsafe_iterable_list = [
+            list(get_unsafe_iterable(strings_list[0])),
+            get_unsafe_iterable(strings_list[1]),
+            set(get_unsafe_iterable(strings_list[2])),
+            tuple(get_unsafe_iterable(strings_list[3])),
+            dict((safe_str, i) for i, safe_str in enumerate(get_unsafe_iterable(strings_list[4])))
+        ]
+
+        safe_iterable_list = [
+            list(get_safe_iterable(strings_list[0], trusted_list[0])),
+            get_safe_iterable(strings_list[1], trusted_list[1]),
+            set(get_safe_iterable(strings_list[2], trusted_list[2])),
+            tuple(get_safe_iterable(strings_list[3], trusted_list[3])),
+            dict((safe_str, i) for i, safe_str in enumerate(get_safe_iterable(strings_list[4], trusted_list[4])))
+        ]
+
+        for i in range(len(strings_list)):
+            print("=== ITERABLE ===")
+            safe_iterable = safe_iterable_list[i]
+            unsafe_iterable = unsafe_iterable_list[i]
+
+            regenerate_iterable = False
+            if isinstance(safe_iterable, types.GeneratorType):
+                regenerate_iterable = True
+            safe_join = safe_string(sep, trusted=gen_random_trusted(len(sep))).join(safe_iterable)
+            unsafe_join = sep.join(unsafe_iterable)
+            trusted_join = bitarray()
+
+            # TODO: Find better way to combine, couldn't do with list comprehension
+            if regenerate_iterable:
+                safe_iterable = get_safe_iterable(strings_list[i], trusted_list[i])
+            for safe_str in safe_iterable:
+                trusted_join += safe_str._trusted
+            trusted_join = frozenbitarray(trusted_join)
+
+            assert unsafe_join == safe_join
+            assert trusted_join == safe_join._trusted
+            assert len(unsafe_join) == len(safe_join._trusted)
+
+def test_splitlines():
+    unsafe = gen_random_string(20)
+    trusted = gen_random_trusted(20)
+    safe = safe_string(unsafe, trusted=trusted)
+
+    unsafe_split = unsafe.splitlines()
+    safe_split = safe.splitlines()
+
+    start = 0
+
+    for unsafe_slice, safe_slice in zip(unsafe_split, safe_split):
+        assert unsafe_slice == safe_slice._to_unsafe_str()
+        assert trusted[start:start+len(unsafe_slice)] == safe._trusted[start:start+len(safe_slice)]
+        start += len(unsafe_slice)+1

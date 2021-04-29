@@ -258,7 +258,25 @@ class safe_string(str):
         return safe_string(string, final_trusted)
 
     def splitlines(self, keepends=False):
-        raise NotImplementedError()
+
+        line_boundaries = ['\n', '\r', '\r\n', '\v', '\x0b', '\f', '\x0c', '\x1c', 
+                            '\x1d', '\x1e', '\x85', '\u2028', '\u2029']
+        
+        safe_string_list = []
+        start = 0
+        for i in range(len(self)):
+            if self[i] in line_boundaries:
+                start_idx = start
+                end_idx = i+1 if keepends else i
+                if start_idx != end_idx:
+                    safe_string_list.append(self[start_idx:end_idx])
+                elif not (self[i] == '\n' and self[i-1] == '\r'):
+                    safe_string_list.append(self[start_idx:end_idx])
+                start = i+1
+
+        if start < len(self):
+            safe_string_list.append(self[start:])
+        return safe_string_list
 
     def split(self, sep=None, maxsplit=-1):
         str_splits = super().split(sep, maxsplit)
@@ -314,8 +332,21 @@ class safe_string(str):
         result.reverse()
         return result
 
+    # TODO: Find better way to compute join of trusted. List comprehension does not work.
     def join(self, iterable):
-        raise NotImplementedError()
+
+        seq = iter(iterable)
+
+        try:
+            first_elem = next(seq)
+            final = first_elem
+        except StopIteration:
+            return safe_string("", trusted=frozenbitarray())
+
+        for elem in seq:
+            final += self + elem
+
+        return final
 
     def partition(self, sep):
         (before, sep_part, after) = super().partition(sep)
