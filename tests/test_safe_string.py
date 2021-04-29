@@ -469,7 +469,6 @@ def test_join():
     # TODO: Test for join using [',', '\n', 'abcd', '\t']
 
     for sep in join_list:
-        print(f"===== SEP : {sep} =====")
         strings_list = [gen_len_random_strings(num_items, max_length) for i in range(num_items)]
         trusted_list = [[gen_random_trusted(len(string)) for string in string_list] for string_list in strings_list]
 
@@ -490,7 +489,6 @@ def test_join():
         ]
 
         for i in range(len(strings_list)):
-            print("=== ITERABLE ===")
             safe_iterable = safe_iterable_list[i]
             unsafe_iterable = unsafe_iterable_list[i]
 
