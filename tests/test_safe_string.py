@@ -203,15 +203,21 @@ def test_replace():
     unsafe = "abABabAB"
     unsafe_old = "AB"
     unsafe_new = "ab"
+    unsafe_old2 = "cd"
 
     safe = safe_string(unsafe, trusted=frozenbitarray([True, True, False, False, True, True, False, False]))
     old_str = safe_string(unsafe_old, frozenbitarray([False]*2))
+    old_str2 = safe_string(unsafe_old2, frozenbitarray([False]*2))
     new_str = safe_string(unsafe_new, trusted=frozenbitarray([True]*2))
 
     assert unsafe.replace(unsafe_old, unsafe_new) == safe.replace(old_str, new_str)
     assert safe.replace(old_str, new_str)._trusted == frozenbitarray([True]*8)
     assert unsafe.replace(unsafe_old, unsafe_new, 1) == safe.replace(old_str, new_str, 1)
     assert safe.replace(old_str, new_str, 1)._trusted == frozenbitarray([True, True, True, True, True, True, False, False])
+    assert unsafe.replace(unsafe_old, unsafe_new,10) == safe.replace(old_str, new_str,10)
+    assert safe.replace(old_str, new_str, 10)._trusted == frozenbitarray([True]*8)
+    assert unsafe.replace(unsafe_old2, unsafe_new) == safe.replace(old_str2, new_str)
+    assert safe.replace(old_str2, new_str)._trusted == safe._trusted
 
 def test_count():
     unsafe = "abABabAB"
