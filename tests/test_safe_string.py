@@ -293,9 +293,18 @@ def test_lr_justification():
         assert safe.ljust(width, fillchar_trusted)._trusted == safe._trusted + true_array
         assert safe.rjust(width, fillchar_trusted)._trusted == true_array + safe._trusted
 
-@pytest.mark.skip
 def test_zfill_behaves_same_as_rjust():
     unsafe = gen_random_string(15)
+    safe = gen_random_safe_from_unsafe(unsafe)
+    for width in range(25):
+        assert safe.zfill(width) == unsafe.zfill(width)
+
+    unsafe = "foo-bar"
+    safe = gen_random_safe_from_unsafe(unsafe)
+    for width in range(25):
+        assert safe.zfill(width) == unsafe.zfill(width)
+
+    unsafe = "-foo-bar"
     safe = gen_random_safe_from_unsafe(unsafe)
     for width in range(25):
         assert safe.zfill(width) == unsafe.zfill(width)
