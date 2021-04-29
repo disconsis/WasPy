@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 import ast
+import astunparse
 
 
 def _wrap(node):
     return ast.Call(
         func=ast.Attribute(value=ast.Name(id="safe_string", ctx=ast.Load()),
-                           attr="trusted_string", ctx=ast.Load()),
+                           attr="safe_string", ctx=ast.Load()),
         args=[
             node
         ],
@@ -62,18 +63,24 @@ class SafeStringVisitor(ast.NodeTransformer):
 # d[u"foo"] = r"b\ar"
 # """
 
-with open("/tmp/sample.py", "r") as fp:
-    code = fp.read()
+# with open("/tmp/sample.py", "r") as fp:
+#     code = fp.read()
 
+def replace_safe_str(code):
+    tree = ast.parse(code)
+    tree.body.insert(0, ast.Import(names=[ast.alias(name='safe_string', asname='safe_string')]))
+    SafeStringVisitor().visit(tree)
+    ast.fix_missing_locations(tree)
+    return astunparse.unparse(tree)
 
-tree = ast.parse(code)
-print(ast.dump(tree, indent=4))
+# tree = ast.parse(code)
+# print(ast.dump(tree))
 
-# tree.body.insert(0, ast.Import(names=[ast.alias(name='safe_string')]))
+# tree.body.insert(0, ast.Import(names=[ast.alias(name='safe_string', asname='safe_string')]))
 # SafeStringVisitor().visit(tree)
 # ast.fix_missing_locations(tree)
 
 # print('----------------------------')
-# print(ast.dump(tree, indent=4))
+# print(ast.dump(tree))
 # print('----------------------------')
-# print(ast.unparse(tree))
+# print(astunparse.unparse(tree))
