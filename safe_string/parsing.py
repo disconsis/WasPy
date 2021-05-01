@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
 import ast
-import astunparse
-
+import os
 
 def _wrap(node):
     return ast.Call(
         func=ast.Attribute(value=ast.Name(id="safe_string", ctx=ast.Load()),
-                           attr="safe_string", ctx=ast.Load()),
+                           attr="safe_string._new_trusted", ctx=ast.Load()),
         args=[
             node
         ],
@@ -51,36 +50,11 @@ class SafeStringVisitor(ast.NodeTransformer):
                 )
 
 
-# code = r"""
-# x = 5
-# y = 'foo'
-# z = "foo\"bar"
-# z = input()
-# print(x + z)
-# d = {}
-# d["foo"] = "bar"
-# d[u"foo"] = r"bar"
-# d[u"foo"] = r"b\ar"
-# """
-
-# with open("/tmp/sample.py", "r") as fp:
-#     code = fp.read()
-
 def replace_safe_str(code):
     tree = ast.parse(code)
-    tree.body.insert(0, ast.Import(names=[ast.alias(name='safe_string', asname='safe_string')]))
+    tree.body.insert(0, ast.Import(names=[ast.alias(name='sys')]))
+    tree.body.insert(1, ast.Import(names=[ast.alias(name='safe_string', asname='safe_string')]))
     SafeStringVisitor().visit(tree)
     ast.fix_missing_locations(tree)
-    return astunparse.unparse(tree)
-
-# tree = ast.parse(code)
-# print(ast.dump(tree))
-
-# tree.body.insert(0, ast.Import(names=[ast.alias(name='safe_string', asname='safe_string')]))
-# SafeStringVisitor().visit(tree)
-# ast.fix_missing_locations(tree)
-
-# print('----------------------------')
-# print(ast.dump(tree))
-# print('----------------------------')
-# print(astunparse.unparse(tree))
+    tree.body.insert(1, ast.parse("sys.path.insert(1, \'{path}\')".format(path=os.environ.get('SAFE_STRING'))))
+    return ast.unparse(tree)
