@@ -546,13 +546,23 @@ def test_splitlines():
         "\n\r\r\n\v\x0b\f\x0c\x1c\x1d\x1e\x85\u2028\u2029",
         "asdfg",
         "\r\r\nasdfgh\n\n\r\n", 
-        "      \v\r\n ajndjvnfnb"
+        "      \v\r\n ajndjvnfnb",
+        "\rabcd"
     ]
 
     trusted_examples = [gen_random_trusted(len(s)) for s in unsafe_examples]
 
     for unsafe, trusted in zip(unsafe_examples, trusted_examples):
         safe = safe_string(unsafe, trusted=trusted)
+        unsafe_split = unsafe.splitlines(keepends=True)
+        safe_split = safe.splitlines(keepends=True)
+
+        start = 0
+        for unsafe_slice, safe_slice in zip(unsafe_split, safe_split):
+            assert unsafe_slice == safe_slice._to_unsafe_str()
+            assert trusted[start:start+len(unsafe_slice)] == safe._trusted[start:start+len(safe_slice)]
+            start += len(unsafe_slice)+1
+
         unsafe_split = unsafe.splitlines()
         safe_split = safe.splitlines()
 

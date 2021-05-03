@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 import ast
-
+import os
 
 def _wrap(node):
     return ast.Call(
         func=ast.Attribute(value=ast.Name(id="safe_string", ctx=ast.Load()),
-                           attr="trusted_string", ctx=ast.Load()),
+                           attr="safe_string._new_trusted", ctx=ast.Load()),
         args=[
             node
         ],
@@ -50,30 +50,13 @@ class SafeStringVisitor(ast.NodeTransformer):
                 )
 
 
-# code = r"""
-# x = 5
-# y = 'foo'
-# z = "foo\"bar"
-# z = input()
-# print(x + z)
-# d = {}
-# d["foo"] = "bar"
-# d[u"foo"] = r"bar"
-# d[u"foo"] = r"b\ar"
-# """
-
-with open("/tmp/sample.py", "r") as fp:
-    code = fp.read()
-
-
-tree = ast.parse(code)
-print(ast.dump(tree, indent=4))
-
-# tree.body.insert(0, ast.Import(names=[ast.alias(name='safe_string')]))
-# SafeStringVisitor().visit(tree)
-# ast.fix_missing_locations(tree)
-
-# print('----------------------------')
-# print(ast.dump(tree, indent=4))
-# print('----------------------------')
-# print(ast.unparse(tree))
+def replace_safe_str(code):
+    tree = ast.parse(code)
+    tree.body.insert(0, ast.Import(names=[ast.alias(name='sys')]))
+    tree.body.insert(1, ast.Import(names=[ast.alias(name='safe_string', asname='safe_string')]))
+    tree.body.insert(2, ast.Import(names=[ast.alias(name='sql')]))
+    tree.body.insert(3, ast.ImportFrom(module='sql', names=[ast.alias(name='has_sqli')], level=0))
+    SafeStringVisitor().visit(tree)
+    ast.fix_missing_locations(tree)
+    tree.body.insert(1, ast.parse("sys.path.insert(1, \'{path}\')".format(path=os.environ.get('SAFE_STRING'))))
+    return ast.unparse(tree)

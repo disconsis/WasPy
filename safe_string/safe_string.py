@@ -274,15 +274,20 @@ class safe_string(str):
         
         safe_string_list = []
         start = 0
-        for i in range(len(self)):
+        i = 0
+        while i < len(self):
             if self[i] in line_boundaries:
                 start_idx = start
                 end_idx = i+1 if keepends else i
-                if start_idx != end_idx:
+                if i+1 < len(self) and self[i] == '\r' and self[i+1] == '\n':
+                    if keepends:
+                        end_idx += 1
                     safe_string_list.append(self[start_idx:end_idx])
-                elif not (self[i] == '\n' and self[i-1] == '\r'):
+                    i += 1
+                else:
                     safe_string_list.append(self[start_idx:end_idx])
                 start = i+1
+            i += 1
 
         if start < len(self):
             safe_string_list.append(self[start:])
