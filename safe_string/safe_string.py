@@ -194,12 +194,18 @@ class safe_string(str):
         return safe_string(string, trusted)
 
     def zfill(self, width):
-        # zfill seems to behave exactly the same as rjust with fillchar="0".
-        # I've tested this with some examples, and it seems to hold. The docs
-        # don't suggest any special nuances either.
-        # Our previous implementation just had the rjust logic for calculating
-        # trusted; so even if this is wrong it's not any *more* wrong than before :P
-        return self.rjust(width, "0")
+        # zfill has special behaviour if the string starts with +/-
+        string = super().zfill(width)
+        if not string:
+            return self
+
+        num_extra = len(string) - len(self)
+        if string[0] == self[0]:
+            trusted = self._trusted[0:1] + frozenbitarray([False]) * num_extra + self._trusted[1:]
+        else:
+            trusted = frozenbitarray([False]) * num_extra + self._trusted
+
+        return safe_string(string, trusted)
 
     @staticmethod
     def _tabindent(token, tabsize):
