@@ -571,3 +571,9 @@ def test_splitlines():
             assert unsafe_slice == safe_slice._to_unsafe_str()
             assert trusted[start:start+len(unsafe_slice)] == safe._trusted[start:start+len(safe_slice)]
             start += len(unsafe_slice)+1
+
+
+def test_adding_str_to_safe_string_returns_safe_string():
+    unsafe = gen_random_string(20)
+    safe = gen_random_safe_string(20)
+    assert isinstance(unsafe + safe, safe_string)

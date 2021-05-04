@@ -1,4 +1,10 @@
 from bitarray import bitarray, frozenbitarray
+from forbiddenfruit import curse
+import itertools
+
+orig_str_add = str.__add__
+orig_str_format = str.format
+
 
 
 class safe_string(str):
@@ -39,7 +45,8 @@ class safe_string(str):
 
     def _debug_repr(self):
         "Debugging: print a representation which shows the trust values of each char."
-        return print(self._to_unsafe_str() + "\n" + self._trusted.to01())
+        return print(orig_str_add(orig_str_add(self._to_unsafe_str(), "\n"),
+                                  self._trusted.to01()))
 
     def __str__(self):
         # sharing should not be a problem
@@ -122,7 +129,7 @@ class safe_string(str):
 
     def __add__(self, other):
         # call str method first to get same behaviour on error
-        string = super().__add__(other)
+        string = orig_str_add(self, other)
         if isinstance(other, safe_string):
             trusted = self._trusted + other._trusted
             return safe_string(string, trusted)
@@ -445,3 +452,29 @@ class safe_string(str):
             super().swapcase(),
             self._trusted
         )
+
+
+def new_str_add(str1, str2):
+    if isinstance(str2, safe_string):
+        str1 = safe_string._new_untrusted(str1)
+        return str1 + str2
+    else:
+        return orig_str_add(str1, str2)
+
+
+def new_str_format(fmt_string, *args, **kwargs):
+    is_safe_string = False
+    for arg in itertools.chain(args, kwargs.values()):
+        if isinstance(arg, safe_string):
+            is_safe_string = True
+            break
+
+    if not is_safe_string:
+        return orig_str_format(fmt_string, *args, **kwargs)
+    else:
+        return safe_string._new_untrusted(fmt_string).format(
+            *args, **kwargs)
+
+
+curse(str, "__add__", new_str_add)
+curse(str, "format", new_str_format)
