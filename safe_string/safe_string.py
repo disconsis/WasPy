@@ -693,3 +693,7 @@ def new_str_format(fmt_string, *args, **kwargs):
 
 curse(str, "__add__", new_str_add)
 curse(str, "format", new_str_format)
+
+
+def trusted_string(string):
+    return safe_string._new_trusted(string)
