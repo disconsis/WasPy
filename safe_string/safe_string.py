@@ -5,57 +5,11 @@ import itertools
 orig_str_add = str.__add__
 orig_str_format = str.format
 
-class OverrideUnsafe:
-    def __init__(self, safe_obj):
-        self.obj = safe_obj
-
-    def __format__(self, *args, **kwargs):
-        if isinstance(self.obj, safe_string):
-            result = safe_format(self.obj, *args, **kwargs)
-        else:
-            result = self.obj.__format__(*args, **kwargs)
-
-        if isinstance(result, safe_string):
-            return result._to_unsafe_str()
-        else:
-            return result
-
-    def __repr__(self):
-        result = self.obj.__repr__()
-        if isinstance(result, safe_string):
-            return result._to_unsafe_str()
-        else:
-            return result
-
-    def __str__(self):
-        result = self.obj.__str__()
-        if isinstance(result, safe_string):
-            return result._to_unsafe_str()
-        else:
-            return result
-
-    def __getitem__(self, *args, **kwargs):
-        return OverrideUnsafe(self.obj.__getitem__(*args, **kwargs))
-
-    def __getattr__(self, *args, **kwargs):
-        return OverrideUnsafe(self.obj.__getattribute__(*args, **kwargs))
-
-
 def safe_format(fmt_string, *args, **kwargs):
-    unsafe_args = list(map(OverrideUnsafe, args))
-    unsafe_kwargs = {key: OverrideUnsafe(value)
-                     for key, value in kwargs.items()}
-
-    result_string = str.format(fmt_string, *unsafe_args, **unsafe_kwargs)
+    result_string = orig_str_format(fmt_string, *args, **kwargs)
     arg_holes, all_holes = _do_build_string(fmt_string)
     arg_hole_trusts = render_field(arg_holes, fmt_string, args, kwargs)
     final_trusted = construct_trusted(fmt_string, all_holes, arg_hole_trusts)
-    if len(result_string) != len(final_trusted):
-        print("ERROR:")
-        safe_string(result_string, trusted=final_trusted)._debug_repr()
-        print(
-            f"str len = {len(result_string)} | trust len = {len(final_trusted)}")
-        raise Exception("mismatched lengths")
     return safe_string(result_string, trusted=final_trusted)
 
 
