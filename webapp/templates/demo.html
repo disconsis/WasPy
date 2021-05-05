@@ -1,0 +1,73 @@
+{% extends 'bootstrap/base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block styles %}
+{{ super() }}
+	<!-- <style> -->
+		<!-- body { background: #e8f1f9; } -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+	<!-- </style> -->
+{% endblock %}
+
+
+{% block title %}
+Demonstration
+{% endblock %}
+
+
+{% block content %}
+<div>
+
+    <h3>Hello, welcome to the demo {{name}}!</h3>
+    <p class="lead">This is the query: SELECT * FROM users WHERE name = ''. </p>
+    <div>
+        {{wtf.quick_form(form,  form_type="basic")}}
+    </div>
+    <p class="pt-5"><strong>{{ message }}</strong></p>
+    <p><a href="/">Click for home</a></p>
+
+</div>
+
+<!-- <div> class="container">
+  <div class="row">
+    <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+
+      <h1 class="pt-5 pb-2">Hello, welcome to the demo!</h1>
+
+      <p class="lead">This is the query --Enter your sql attack in the form field.</p>
+
+      {{ wtf.quick_form(form) }}
+
+      <p class="pt-5"><strong>{{ message }}</strong></p>
+    <p><a href="/">Click for home</a></p>
+
+    </div>
+  </div>
+</div> -->
+
+{% endblock %}
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hello HTML Templates</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+
+<div>
+
+    <h3>Hello, welcome to the demo {{name}}!</h3>
+    <p class="lead">This is the query -- </p>
+    <p>Enter your sql attack in the form field.</p>
+    {{wtf.quick_form(form)}}
+    <p><a href="/">Click for home</a></p>
+
+</div>
+
+</body>
+</html> -->
+
+
+
