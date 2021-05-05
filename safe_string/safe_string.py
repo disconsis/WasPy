@@ -629,8 +629,8 @@ class safe_string(str):
     def format(self, *args, **kwargs):
         return safe_format(self, *args, **kwargs)
 
-    def format_map(self, *args, **kwargs):
-        raise NotImplementedError()
+    def format_map(self, kwargs):
+        return self.format(**kwargs)
 
     def title(self):
         return safe_string(
