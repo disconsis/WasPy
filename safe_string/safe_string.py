@@ -411,10 +411,12 @@ class safe_string(str):
 
     # XXX comment for debugging
     def __format__(self, format_spec):
-        raise NotImplementedError()
+        self._to_unsafe_str().__format__(format_spec)
+        # raise NotImplementedError()
 
     def format(self, *args, **kwargs):
-        raise NotImplementedError()
+        self._to_unsafe_str().format(args, kwargs)
+        # raise NotImplementedError()
 
     def format_map(self, *args, **kwargs):
         raise NotImplementedError()
