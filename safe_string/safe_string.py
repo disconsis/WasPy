@@ -112,11 +112,6 @@ def construct_trusted(format_string, gl_holes, trusted_result):
     return final_trusted
 
 
-test_cases = ["{abc}", "{{", "}}", "{{{}}}", "{}{}{}", "}", "{{{{}}}}"]
-for s in test_cases:
-    _do_build_string(s)
-
-
 def parse_field(hole):
     hole = hole[1:-1]
 
@@ -223,6 +218,7 @@ def field_parser(args, kwargs):
         return obj, conv, spec
 
     return _parser
+
 
 class safe_string(str):
     """
