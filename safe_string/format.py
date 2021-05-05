@@ -1,13 +1,12 @@
 from safe_string import (
     safe_string,
-    dbg_safestring,
-    dbg_print_safestring,
     parse_field,
     get_argument,
     resolve_lookups,
     field_parser,
 )
 
+from bitarray import frozenbitarray
 
 def test_parse_field():
     assert parse_field("{}") == ("", None, "")
@@ -72,6 +71,7 @@ def test_field_parser():
 
 if __name__ == '__main__':
     fmt_s = "{name[0]!a} {!s} {!r}"
-    fmt = safe_string(fmt_s, trusted=[True] * len(fmt_s))
+    fmt = safe_string(fmt_s, trusted=frozenbitarray([True] * len(fmt_s)))
     nino = b"Ni\xc3\xb10".decode("utf-8")
-    dbg_print_safestring(format(fmt, 10, 18, name=[dbg_safestring(nino)]))
+    
+    fmt.format(10, 18, name=[nino])._debug_repr()
