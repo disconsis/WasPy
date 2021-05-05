@@ -1,0 +1,24 @@
+import sys
+sys.path.insert(1, '/Users/agnithamohanram/Documents/NYU-courses/NYU_Sem4/PracticalComputerSecurity/Project/ProjectCode/WasPy/safe_string')
+# from parsing import replace_safe_str
+import ast 
+
+class SafeStringVisitor(ast.NodeTransformer):
+    # def visit_Constant(self, node):
+    #     print(ast.dump(node, indent=4))
+    #     return node
+    
+    def visit(self, node):
+        print(ast.dump(node, indent=4))
+        print("------------------------")
+        return node
+
+
+
+f = open('app.py', 'r')
+code = f.read() 
+
+tree = ast.parse(code)
+
+# print(ast.dump(tree, indent=4))
+SafeStringVisitor().visit(tree)
