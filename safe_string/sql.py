@@ -2,6 +2,9 @@ import sqlparse
 from safe_string import safe_string #, dbg_print_safestring
 
 def has_sqli(query):
+    assert sqli(query) == False, "SQLI attempted. Aborting!"
+
+def sqli(query):
     if not isinstance(query, safe_string):
         return True
 
