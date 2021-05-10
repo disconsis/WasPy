@@ -184,7 +184,7 @@ source.py -----python compiler----> python bytecode
 1. Find most popular low-level libraries (connector libraries?) for top DBs:
 - [X] sqlite3
 - [ ] mysql
-- [ ] postgres - psycopg2
+- [X] postgres - psycopg2
 
 2. Wrap them with `has_sqli`
 
