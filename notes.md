@@ -151,3 +151,80 @@ source.py -----python compiler----> python bytecode
                                     execute program
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# TODO
+
+## Override `cursor.execute`
+1. Find most popular low-level libraries (connector libraries?) for top DBs:
+- sqlite3
+- mysql
+- postgres - psycopg2
+
+2. Wrap them with `has_sqli`
+
+* Only run `has_sqli` on first argument.
+
+## Run against sample applications
+- False positives/negatives
+
+```python
+
+for payload in sqli_payloads:
+   if has_sqli(payload) == False and is_valid(payload):
+      raise FalseNegative
+      
+for payload in non_sqli_payloads:
+   if has_sqli(payload) == True and is_valid(payload):
+      raise FalsePositive
+
+```
+
+Build some sample applications and test some inputs against them.
+- https://github.com/captain-yuca/hurricane-relief-be
+  - postgres
+- https://github.com/yi-jiayu/sqli-example
+  - sqlite3
+- https://github.com/stamparm/DSVW
+  - sqlite3
+
+## Fix breakages in `compile` and other functions like it
+Builtin C functions which call `PyUnicode_CheckExact` to ensure they get a
+unicode object (and not a subtype) throw this error. This is a list
+of them:
+1. compile
+
+Override these to convert their arguments to unsafe string beforehand.
+
+## Validate
+1. first check if `has_sqli`
+2. sqlvalidator
+
+If lot of false positives/negatives:
+3. use EXPLAIN (**which db?**)
+  - go through all of them to find any one which thinks this is valid
