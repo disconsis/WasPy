@@ -20,7 +20,7 @@ def sqli(query):
                 # all chars should be trusted
                 for char_idx in range(start_idx, end_idx):
                     if not query._trusted[char_idx]:
-                        print("failed at token", str(token))
+                        # print("failed at token", str(token))
                         return True
 
             start_idx = end_idx
