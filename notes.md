@@ -182,15 +182,16 @@ source.py -----python compiler----> python bytecode
 
 ## Override `cursor.execute`
 1. Find most popular low-level libraries (connector libraries?) for top DBs:
-- sqlite3
-- mysql
-- postgres - psycopg2
+- [X] sqlite3
+- [ ] mysql
+- [ ] postgres - psycopg2
 
 2. Wrap them with `has_sqli`
 
 * Only run `has_sqli` on first argument.
 
 ## Run against sample applications
+- Search for non-sqli payloads
 - False positives/negatives
 
 ```python
