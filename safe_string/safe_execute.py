@@ -56,8 +56,14 @@ if not __completed:
         (sqlite3.Connection, sqlite3.Error),
         (sqlite3.Cursor, sqlite3.Error),
         (psycopg2.extensions.cursor, psycopg2.OperationalError),
-        (mysql.connector.cursor_cext.CMySQLCursor, mysql.connector.Error),
+        (mysql.connector.cursor.MySQLCursor, mysql.connector.Error),
     ]
+
+    if mysql.connector.HAVE_CEXT:
+        unsafe_execute_classes.append(
+            (mysql.connector.cursor_cext.CMySQLCursor, mysql.connector.Error)
+        )
+
 
     for class_, error_class in unsafe_execute_classes:
         for func_name in ("execute", "executemany"):
