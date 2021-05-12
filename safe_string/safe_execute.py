@@ -1,6 +1,7 @@
 from forbiddenfruit import curse
 import sqlite3
 import psycopg2
+import mysql.connector
 from functools import wraps
 
 import sql
@@ -9,6 +10,7 @@ import sql
 unsafe_execute_classes = [
     sqlite3.Connection,
     psycopg2.extensions.cursor,
+    mysql.connector.cursor_cext.CMySQLCursor,
 ]
 
 for class_ in unsafe_execute_classes:
