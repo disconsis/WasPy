@@ -20,34 +20,34 @@ class SafeStringVisitor(ast.NodeTransformer):
         else:
             return node
 
-    def visit_JoinedStr(self, node):
-        """
-        Cases to take care of:
+    # def visit_JoinedStr(self, node):
+    #     """
+    #     Cases to take care of:
 
-        f'{x}'
-        f'{x!r:4d}'
-        f'{1 + 2}'
-        f'{1 + 2:4d}'
-        f'{1 + 2!r:4}'
-        f'{foo()!r:4}'
-        """
-        args = []
-        fmt_string = ""
-        for child in node.values:
-            if not isinstance(child, ast.FormattedValue):
-                args.append(child.value)
+    #     f'{x}'
+    #     f'{x!r:4d}'
+    #     f'{1 + 2}'
+    #     f'{1 + 2:4d}'
+    #     f'{1 + 2!r:4}'
+    #     f'{foo()!r:4}'
+    #     """
+    #     args = []
+    #     fmt_string = ""
+    #     for child in node.values:
+    #         if not isinstance(child, ast.FormattedValue):
+    #             args.append(child.value)
 
-                conv = ""
-                for conv_value in ('r', 's', 'a'):
-                    if child.conversion == ord(conv_value):
-                        conv = "!" + conv_value
-                        break
+    #             conv = ""
+    #             for conv_value in ('r', 's', 'a'):
+    #                 if child.conversion == ord(conv_value):
+    #                     conv = "!" + conv_value
+    #                     break
 
-                fmt_string += (
-                    "{"
-                    + conv
-                    + "}"
-                )
+    #             fmt_string += (
+    #                 "{"
+    #                 + conv
+    #                 + "}"
+    #             )
 
 
 def replace_safe_str(code):
