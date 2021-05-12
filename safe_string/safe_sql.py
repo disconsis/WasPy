@@ -1,6 +1,6 @@
 import sqlparse
 import sqlvalidator
-from safe_string import safe_string
+from safe_string.safe_string import safe_string
 
 
 def has_sqli(query):

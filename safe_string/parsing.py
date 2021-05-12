@@ -4,6 +4,7 @@ import ast
 import os
 import os.path
 
+
 def _wrap(node):
     return ast.Call(
         func=ast.Attribute(value=ast.Name(id="safe_string", ctx=ast.Load()),
@@ -13,6 +14,7 @@ def _wrap(node):
         ],
         keywords=[],
     )
+
 
 class SafeStringVisitor(ast.NodeTransformer):
     def visit_Constant(self, node):
