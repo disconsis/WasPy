@@ -28,20 +28,12 @@ def wrap_execute(class_, unsafe_func, error_class):
 
 class ToUnsafeVisitor(ast.NodeTransformer):
     def generic_visit(self, node):
-        # print("visit:", ast.dump(node))
-        # print("-" * 50)
-        # if hasattr(node, "name"):
-        #     print("--- hit ---")
-
-        # return node
-
-
         for field, value in ast.iter_fields(node):
             if isinstance(value, list):
                 for item in value:
                     if isinstance(item, AST):
                         self.visit(item)
-                    elif isinstance(item, safe_string):
+
                         setattr(node, field, item._to_unsafe_str())
 
             elif isinstance(value, AST):
@@ -86,10 +78,6 @@ if not __completed:
 
         elif isinstance(source, ast.AST):
             ToUnsafeVisitor().visit(source)
-
-        # print("----------------------")
-        # print("compile", type(source), source)
-        # print("----------------------")
 
         try:
             return orig_compile(source, *args, **kwargs)
