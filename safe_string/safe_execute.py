@@ -21,7 +21,7 @@ for class_ in unsafe_execute_classes:
             @wraps(unsafe_func)
             def safe_func(self, query, *args, **kwargs):
                 if sql.sqli(query):
-                    print("[!] SQLi detected in psycopg2")
+                    print("[!] SQLi detected in {}".format(class_.__module__))
                     print(f"query: {query!r}")
                     return
 
