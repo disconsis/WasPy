@@ -606,6 +606,12 @@ class safe_string(str):
     def replace(self, old, new, count=-1):
         count = super().count(old) if count == -1 else min(count, super().count(old))
         result_string = super().replace(old, new, count)
+        if isinstance(old, str):
+            old = self._new_untrusted(old)
+
+        if isinstance(new, str):
+            new = self._new_untrusted(new)
+        
         result_trusted = bitarray()
         start_idx = 0
         while count > 0:
