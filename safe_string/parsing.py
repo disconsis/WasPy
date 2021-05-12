@@ -2,6 +2,7 @@
 
 import ast
 import os
+import os.path
 
 def _wrap(node):
     return ast.Call(
@@ -56,6 +57,6 @@ def replace_safe_str(code):
     tree.body.insert(1, ast.Import(names=[ast.alias(name='safe_string', asname='safe_string')]))
     tree.body.insert(2, ast.Import(names=[ast.alias(name='safe_execute')]))
     SafeStringVisitor().visit(tree)
-    tree.body.insert(1, ast.parse("sys.path.insert(1, \'{path}\')".format(path=os.environ.get('SAFE_STRING'))))
+    tree.body.insert(1, ast.parse("sys.path.insert(1, \'{path}\')".format(path=os.path.dirname(__file__))))
     ast.fix_missing_locations(tree)
     return ast.unparse(tree)
