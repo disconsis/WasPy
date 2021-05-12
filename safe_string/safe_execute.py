@@ -3,13 +3,16 @@ import sqlite3
 import psycopg2
 import mysql.connector
 from functools import wraps
+import ast
+from ast import AST
 
+from safe_string import safe_string
 import sql
 
 __completed = False
 
 
-def wrap(class_, unsafe_func, error_class):
+def wrap_execute(class_, unsafe_func, error_class):
     @wraps(unsafe_func)
     def safe_func(self, query, *args, **kwargs):
         # print(f'DEBUG: calling {class_.__module__}.{unsafe_func.__name__}')
@@ -21,6 +24,31 @@ def wrap(class_, unsafe_func, error_class):
         return unsafe_func(self, query, *args, **kwargs)
 
     return safe_func
+
+
+class ToUnsafeVisitor(ast.NodeTransformer):
+    def generic_visit(self, node):
+        # print("visit:", ast.dump(node))
+        # print("-" * 50)
+        # if hasattr(node, "name"):
+        #     print("--- hit ---")
+
+        # return node
+
+
+        for field, value in ast.iter_fields(node):
+            if isinstance(value, list):
+                for item in value:
+                    if isinstance(item, AST):
+                        self.visit(item)
+                    elif isinstance(item, safe_string):
+                        setattr(node, field, item._to_unsafe_str())
+
+            elif isinstance(value, AST):
+                self.visit(value)
+
+            elif isinstance(value, safe_string):
+                setattr(node, field, value._to_unsafe_str())
 
 
 if not __completed:
@@ -38,7 +66,33 @@ if not __completed:
             except AttributeError:
                 pass
             else:
-                safe_func = wrap(class_, unsafe_func, error_class)
+                safe_func = wrap_execute(class_, unsafe_func, error_class)
                 curse(class_, func_name, safe_func)
+
+
+
+    orig_compile = compile
+
+    @wraps(compile)
+    def safe_compile(source, *args, **kwargs):
+        if isinstance(source, safe_string):
+            source = source._to_unsafe_str()
+
+        elif isinstance(source, ast.AST):
+            ToUnsafeVisitor().visit(source)
+
+        # print("----------------------")
+        # print("compile", type(source), source)
+        # print("----------------------")
+
+        try:
+            return orig_compile(source, *args, **kwargs)
+        except TypeError:
+            print(ast.dump(source))
+            raise
+
+    __builtins__["compile"] = safe_compile
+
+
 
     __completed = True
