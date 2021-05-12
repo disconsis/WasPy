@@ -12,6 +12,7 @@ __completed = False
 if not __completed:
     unsafe_execute_classes = [
         sqlite3.Connection,
+        sqlite3.Cursor,
         psycopg2.extensions.cursor,
         mysql.connector.cursor_cext.CMySQLCursor,
     ]
