@@ -1,4 +1,5 @@
 import sqlparse
+import sqlvalidator
 from safe_string import safe_string #, dbg_print_safestring
 
 def sqli(query):
@@ -20,6 +21,13 @@ def sqli(query):
             start_idx = end_idx
 
     return False
+
+
+def is_valid_sql(query):
+    try:
+        return sqlvalidator.parse(query).is_valid()
+    except:
+        return False
 
 
 if __name__ == "__main__":
