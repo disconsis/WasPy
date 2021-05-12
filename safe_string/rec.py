@@ -1,4 +1,4 @@
-import glob 
+import glob
 import os
 from argparse import ArgumentParser
 from parsing import replace_safe_str
@@ -38,4 +38,3 @@ if os.path.isdir(path):
         replace_file(file)
 else:
     replace_file(path)
-
