@@ -183,7 +183,7 @@ source.py -----python compiler----> python bytecode
 ## Override `cursor.execute`
 1. Find most popular low-level libraries (connector libraries?) for top DBs:
 - [X] sqlite3
-- [ ] mysql
+- [X] mysql
 - [X] postgres - psycopg2
 
 2. Wrap them with `has_sqli`
@@ -218,7 +218,7 @@ Build some sample applications and test some inputs against them.
 Builtin C functions which call `PyUnicode_CheckExact` to ensure they get a
 unicode object (and not a subtype) throw this error. This is a list
 of them:
-1. compile
+1. [X] compile
 
 Override these to convert their arguments to unsafe string beforehand.
 
