@@ -1,5 +1,4 @@
 import csv
-from pprint import pprint
 import sys
 import os.path
 
@@ -7,9 +6,10 @@ os.chdir(os.path.dirname(__file__))
 
 sys.path.append("../safe_string")
 from safe_string import safe_string
-from sql import sqli, is_valid_sql
+from safe_sql import has_sqli, is_valid
 
 
+# https://raw.githubusercontent.com/fthuin/fakepeople/master/fake_people.csv
 with open("fake_people.csv", newline="") as fp:
     reader = csv.DictReader(fp)
 
@@ -27,9 +27,9 @@ with open("fake_people.csv", newline="") as fp:
                 rows += 1
                 for value in row.values():
                     query = template.format(value)
-                    if is_valid_sql(query):
+                    if is_valid(query):
                         tot += 1
-                        if sqli(query):
+                        if has_sqli(query):
                             print(query)
                             fp += 1
 

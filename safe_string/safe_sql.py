@@ -26,7 +26,7 @@ def has_sqli(query):
     return False
 
 
-def is_valid_sql(query):
+def is_valid(query):
     """
     Simple sql validator.
     `sqlvalidator.is_valid` frequently throws errors

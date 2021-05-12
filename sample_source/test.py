@@ -1,9 +1,9 @@
-
 import csv
-import sql
+import safe_sql
+
 # git clone https://github.com/omurugur/SQL_Injection_Payload.git at the same level as WasPy
-f = open('../../SQL_Injection_Payload/SQL-Inj-Payload.txt','r')
-fd = open('result.csv','a') 
+f = open('../../SQL_Injection_Payload/SQL-Inj-Payload.txt', 'r')
+fd = open('result.csv', 'a')
 fnames = ['query', 'has_sqli']
 writer = csv.DictWriter(fd, fieldnames=fnames)
 writer.writeheader()
@@ -14,13 +14,8 @@ for x in f:
         tot += 1
         value = x
         template += "'" + value + "'"
-        if not sql.sqli(template) and sql.is_valid_sql(template):
-            fn +=1
+        if not safe_sql.has_sqli(template) and safe_sql.is_valid(template):
+            fn += 1
 
-        # result = "True" if has_sqli(template) else "False"
-        # writer.writerow({'query' : str(template), 'has_sqli': result})
-        
 print("False Negatives:", fn)
 print("DONE")
-
-
