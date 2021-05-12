@@ -1,12 +1,6 @@
 import sqlparse
 from safe_string import safe_string #, dbg_print_safestring
 
-def has_sqli(query):
-    try:
-        assert sqli(query) == False, "SQLI attempted!"
-    except AssertionError as error:
-        print("Warning: ", error)
-
 def sqli(query):
     if not isinstance(query, safe_string):
         return True
@@ -31,16 +25,16 @@ def sqli(query):
 if __name__ == "__main__":
     query_string = "SELECT * FROM tbl WHERE id = 1;"
     query_trusted = [True] * len(query_string)
-    print(has_sqli(safe_string(query_string, trusted=query_trusted)))
+    print(sqli(safe_string(query_string, trusted=query_trusted)))
 
     query_string = "SELECT * FROM tbl WHERE id = 1;"
     query_trusted = [False] * len(query_string)
-    print(has_sqli(safe_string(query_string, trusted=query_trusted)))
+    print(sqli(safe_string(query_string, trusted=query_trusted)))
 
     def check_sqli(query_string, trust_string):
         trusted = list(map(lambda x: bool(int(x)), trust_string))
         query = safe_string(query_string, trusted=trusted)
-        print(has_sqli(query))
+        print(sqli(query))
 
     check_sqli(
         "SELECT * FROM tbl WHERE id = 1;",
@@ -88,6 +82,6 @@ if __name__ == "__main__":
                                         user_input_sf)
             print('-----------------------------')
             # dbg_print_safestring(query)
-            print(has_sqli(query))
+            print(sqli(query))
             print('-----------------------------')
             input()
