@@ -33,7 +33,7 @@ class ToUnsafeVisitor(ast.NodeTransformer):
                 for item in value:
                     if isinstance(item, AST):
                         self.visit(item)
-
+                    elif isinstance(item, safe_string):
                         setattr(node, field, item._to_unsafe_str())
 
             elif isinstance(value, AST):
