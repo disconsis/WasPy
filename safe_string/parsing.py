@@ -58,6 +58,6 @@ def replace_safe_str(code):
     tree.body.insert(3, ast.Import(names=[ast.alias(name='safe_execute')]))
     tree.body.insert(4, ast.ImportFrom(module='sql', names=[ast.alias(name='has_sqli')], level=0))
     SafeStringVisitor().visit(tree)
-    ast.fix_missing_locations(tree)
     tree.body.insert(1, ast.parse("sys.path.insert(1, \'{path}\')".format(path=os.environ.get('SAFE_STRING'))))
+    ast.fix_missing_locations(tree)
     return ast.unparse(tree)
