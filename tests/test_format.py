@@ -1,4 +1,4 @@
-from safe_string import (
+from safe_string.safe_string import (
     safe_string,
     parse_field,
     get_argument,
