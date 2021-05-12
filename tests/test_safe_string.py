@@ -213,7 +213,7 @@ def test_replace():
     assert safe.replace(old_str, new_str)._trusted == frozenbitarray([True]*8)
     assert unsafe.replace(unsafe_old, unsafe_new, 1) == safe.replace(old_str, new_str, 1)
     assert safe.replace(old_str, new_str, 1)._trusted == frozenbitarray([True, True, True, True, True, True, False, False])
-    assert unsafe.replace(unsafe_old, unsafe_new,10) == safe.replace(old_str, new_str,10)
+    assert unsafe.replace(unsafe_old, unsafe_new, 10) == safe.replace(old_str, new_str, 10)
     assert safe.replace(old_str, new_str, 10)._trusted == frozenbitarray([True]*8)
     assert unsafe.replace(unsafe_old2, unsafe_new) == safe.replace(old_str2, new_str)
     assert safe.replace(old_str2, new_str)._trusted == safe._trusted
