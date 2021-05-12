@@ -9,6 +9,21 @@ import sql
 __completed = False
 
 
+def wrap(class_, unsafe_func):
+    @wraps(unsafe_func)
+    def safe_func(self, query, *args, **kwargs):
+        # print(f'DEBUG: calling {class_.__module__}.{unsafe_func.__name__}')
+        if sql.sqli(query):
+            print("[!] SQLi detected in {}".format(class_.__module__))
+            print(f"query: {query!r}")
+            # FIXME: replace with the module's error type
+            raise RuntimeError("sqli detected")
+
+        return unsafe_func(self, query, *args, **kwargs)
+
+    return safe_func
+
+
 if not __completed:
     unsafe_execute_classes = [
         sqlite3.Connection,
@@ -24,15 +39,7 @@ if not __completed:
             except AttributeError:
                 pass
             else:
-                @wraps(unsafe_func)
-                def safe_func(self, query, *args, **kwargs):
-                    if sql.sqli(query):
-                        print("[!] SQLi detected in {}".format(class_.__module__))
-                        print(f"query: {query!r}")
-                        return
-
-                    return unsafe_func(self, query, *args, **kwargs)
-
+                safe_func = wrap(class_, unsafe_func)
                 curse(class_, func_name, safe_func)
 
     __completed = True
