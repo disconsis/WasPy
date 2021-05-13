@@ -228,11 +228,9 @@ class safe_string(str):
     # Need to overload __new__ to not pass trusted to super().__new__.
     # Use frozenbitarray instead of bitarray since it is immutable,
     # similar to str. This should prevent sharing errors.
-    # TODO: have a default trusted generator
     def __new__(cls, value, trusted=None):
         return super().__new__(cls, value)
 
-    # TODO: Add raise error if trusted and string are of different lengths
     def __init__(self, _string, trusted: frozenbitarray = None):
         if trusted is None:
             trusted = frozenbitarray([False]*len(_string))
@@ -565,11 +563,8 @@ class safe_string(str):
         result.reverse()
         return result
 
-    # TODO: Find better way to compute join of trusted. List comprehension does not work.
     def join(self, iterable):
-
         seq = iter(iterable)
-
         try:
             first_elem = next(seq)
             final = first_elem
@@ -609,7 +604,7 @@ class safe_string(str):
 
         if not isinstance(new, safe_string):
             new = self._new_untrusted(new)
-        
+
         result_trusted = bitarray()
         start_idx = 0
         while count > 0:
